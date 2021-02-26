@@ -182,6 +182,22 @@ class CheckersBoard():
                     self._generate_king_moves(i, j, player, moves)
         return moves
 
+    def valid_position_moves(self, position):
+        row, col = position
+        v = self.board[row][col]
+        if v in [self.WHITE, self.WHITE_KING]:
+            player = self.WHITE
+        elif v in [self.BLACK, self.BLACK_KING]:
+            player = self.BLACK
+        else:
+            raise ValueError('No piece in specified position')
+        moves = []
+        if v in [self.WHITE, self.BLACK]:
+            self._generate_piece_moves(row, col, player, moves)
+        if v in [self.WHITE_KING, self.BLACK_KING]:
+            self._generate_king_moves(row, col, player, moves)
+        return moves
+
     def get_position(self, coordinates):
         return self.board[coordinates[0]][coordinates[1]]
 
@@ -271,3 +287,15 @@ class CheckersBoard():
 
         piece = self._maybe_promote_piece(move[-1], piece, player)
         self._set_position(move[-1], piece)
+
+    def pieces(self):
+        """ Returns the list of all board pieces as (row, col, piece code)
+        """
+        results = []
+        for i in range(self.BOARD_SIZE):
+            for j in range(self.BOARD_SIZE):
+                piece = self.board[i][j]
+                if piece == 0:
+                    continue
+                results.append((i, j, piece))
+        return results
