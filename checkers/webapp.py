@@ -1,3 +1,5 @@
+""" Simple flask based webapp design to allow human vs computer play.
+"""
 import random
 
 from flask import Flask, request, send_from_directory, jsonify, make_response

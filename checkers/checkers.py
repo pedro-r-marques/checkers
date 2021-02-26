@@ -1,4 +1,4 @@
-""" Defines the checkers board.
+""" Defines the checkers board and implements the rules of the game.
 """
 import copy
 
