@@ -108,6 +108,28 @@ class CheckersBoardTest(unittest.TestCase):
         self.assertEqual(board.count(), (2, 1))
         self.assertEqual(board.get_position((4, 6)), CheckersBoard.BLACK_KING)
 
+    def test_king_move_with_corner_piece(self):
+        """ Ensures that we check for board boundaries when looking for a
+            piece to capture.
+        """
+        state = [[0] * 8 for _ in range(8)]
+        state[7][4] = CheckersBoard.WHITE_KING
+        state[7][0] = CheckersBoard.BLACK
+        state[6][3] = CheckersBoard.BLACK
+        state[6][5] = CheckersBoard.BLACK
+        state[6][7] = CheckersBoard.BLACK
+        state[5][0] = CheckersBoard.BLACK
+        state[4][7] = CheckersBoard.WHITE
+        state[3][0] = CheckersBoard.WHITE
+        state[3][2] = CheckersBoard.BLACK
+        state[2][7] = CheckersBoard.BLACK
+        state[1][0] = CheckersBoard.WHITE
+
+        board = CheckersBoard(initial_state=state)
+        moves = board.valid_position_moves((7, 4))
+        self.assertTrue(bool(moves))
+        self.assertTrue(all(board.get_position(m[-1]) == 0 for m in moves))
+
 
 if __name__ == '__main__':
     unittest.main()

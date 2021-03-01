@@ -147,14 +147,17 @@ class CheckersBoard():
                     break
                 if self._is_opposing_player_piece(v, player):
                     npos = _advance(pos, vdir, hdir)
+                    if not _is_valid_position(npos):
+                        break
                     if self.get_position(npos) != 0:
                         break
                     capture = True
+                    pos = npos
 
                 if capture:
                     additional = []
                     self._generate_king_moves(
-                        npos[0], npos[1], player, additional, capture_only=True,
+                        pos[0], pos[1], player, additional, capture_only=True,
                         exclude_dir=(not vdir, not hdir))
                     if additional:
                         moves.extend([[start] + m for m in additional])

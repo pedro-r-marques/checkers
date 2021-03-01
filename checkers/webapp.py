@@ -1,10 +1,9 @@
 """ Simple flask based webapp design to allow human vs computer play.
 """
-import random
-
 from flask import Flask, request, send_from_directory, jsonify, make_response
 
 from .checkers import CheckersBoard
+from .play import make_play
 
 app = Flask("checkers", static_url_path='')
 
@@ -23,7 +22,11 @@ def index():
 
 @app.route('/api/board',  methods=['GET'])
 def get_board():
-    return jsonify(board.pieces())
+    response = {
+        'board': board.pieces(),
+        'pieces': board.count(),
+    }
+    return jsonify(response)
 
 
 @app.route('/api/moves/<row>/<col>', methods=['GET'])
@@ -47,10 +50,9 @@ def make_move():
         return make_response("Invalid player id", 400)
 
     if 'auto' in data and data['auto']:
-        moves = board.valid_moves(player)
-        move = random.choice(moves)
+        move = make_play(board, player)
         board.move(move)
-        return make_response('OK', 200)
+        return jsonify(move)
 
     if 'start' not in data or 'end' not in data:
         return make_response('start and end positions must be specified')

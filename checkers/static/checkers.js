@@ -3,7 +3,7 @@ var currentBoard = undefined;
 var selectedCell = null;
 var currentPlayOptions = [];
 
-function board_update_content(data) {
+function board_update_content(response) {
     let xboard = document.querySelector("#board");
     let tbody = xboard.querySelector("tbody");
 
@@ -12,7 +12,7 @@ function board_update_content(data) {
         board[i] = new Array(8).fill(0);
     }
 
-    data.forEach(element => {
+    response['board'].forEach(element => {
         let row = element[0];
         let col = element[1];
         board[row][col] = element[2];
@@ -40,6 +40,13 @@ function board_update_content(data) {
             }
         }
     }
+
+    el_count_computer = document.querySelector("#computer-capture-count");
+    let value = 12 - response['pieces'][0];
+    el_count_computer.innerHTML = value.toString();
+    el_count_player = document.querySelector("#player-capture-count");
+    value = 12 - response['pieces'][1];
+    el_count_player.innerHTML = value.toString();
 }
 
 function board_update() {
@@ -98,6 +105,20 @@ function clearPlayOptions(row, col) {
     currentPlayOptions = [];
 }
 
+function update_computer_move(response) {
+    let str = "";
+    response.forEach(element => {
+        if (str.length) {
+            str += " ";
+        }
+        let chr = String.fromCharCode("a".codePointAt(0) + element[1]);
+        str += "(" + element[0] + ", " + chr + ")";
+    });
+
+    element = document.querySelector('#last-move')
+    element.innerHTML = str;
+}
+
 function isInCurrentOptions(row, col) {
     let exists = currentPlayOptions.some(opt => {
         let end = opt[opt.length - 1];
@@ -120,9 +141,11 @@ function makeMove(start, end) {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(request_data)
-    });
-
-    board_update();
+    }).then(
+        function (response) {
+            board_update();
+        }
+    );
 }
 
 function advanceGame() {
@@ -137,9 +160,13 @@ function advanceGame() {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(request_data)
-    });
+    })
+        .then(response => response.json())
+        .then(function (data) {
+            update_computer_move(data);
+            board_update();
+        });
 
-    board_update();
 }
 
 function onCellClick(element, event) {
