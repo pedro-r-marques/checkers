@@ -42,10 +42,10 @@ function board_update_content(response) {
     }
 
     el_count_computer = document.querySelector("#computer-capture-count");
-    let value = 12 - response['pieces'][0];
+    let value = 12 - response['pieces'][1];
     el_count_computer.innerHTML = value.toString();
     el_count_player = document.querySelector("#player-capture-count");
-    value = 12 - response['pieces'][1];
+    value = 12 - response['pieces'][0];
     el_count_player.innerHTML = value.toString();
 }
 
