@@ -31,7 +31,11 @@ function board_update_content(response) {
                 td.classList.remove('white-piece');
                 td.classList.remove('black-piece');
             } else {
-                td.innerHTML = "x";
+                if (piece == 1 || piece == 2) {
+                    td.innerHTML = "x";
+                } else {
+                    td.innerHTML = "X";
+                }
                 if (piece == 1 || piece == 3) {
                     td.classList.add('white-piece');
                 } else {
