@@ -51,6 +51,17 @@
         .score-box td {
             text-align: right;
         }
+
+        div.game-over {
+            margin-top: 2em;
+            margin-left: 2em;
+            display: none;
+        }
+
+        div.restart-button {
+            margin-top: 2em;
+            margin-left: 2em;
+        }
         body {
             background-color: dodgerblue;
         }
@@ -185,6 +196,13 @@
                 </tr>
             </tbody>
         </table>
+    </div>
+    <div class="game-over">
+        <p>Game over</p>
+        <p id="winner"></p>
+    </div>
+    <div class="restart-button">
+        <button id="restart">Restart</button>
     </div>
     <script src="checkers.js"></script>
 </body>
