@@ -130,6 +130,20 @@ class CheckersBoardTest(unittest.TestCase):
         self.assertTrue(bool(moves))
         self.assertTrue(all(board.get_position(m[-1]) == 0 for m in moves))
 
+    def test_king_recursion(self):
+        state = [
+            [0, 0, 0, 0, 0, 3, 0, 4],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 3, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 3, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0]
+        ]
+        board = CheckersBoard(initial_state=state)
+        moves = board.valid_position_moves((0, 7))
+        self.assertTrue(moves)
 
 if __name__ == '__main__':
     unittest.main()

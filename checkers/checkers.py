@@ -116,7 +116,7 @@ class CheckersBoard():
                     gen_capture_move(nnrow, col + 2)
 
     def _generate_king_moves(self, row, col, player, moves, capture_only=False,
-                             exclude_dir=None):
+                             exclude_dir=None, exclude_list=[], depth=0):
         """ kings can move in any diagonal (forward or backwards) and capture
             an opposing piece if there is an empty space beyond it.
         """
@@ -145,6 +145,8 @@ class CheckersBoard():
                 v = self.get_position(pos)
                 if self._is_player_piece(v, player):
                     break
+                if pos in exclude_list:
+                    break
                 if self._is_opposing_player_piece(v, player):
                     npos = _advance(pos, vdir, hdir)
                     if not _is_valid_position(npos):
@@ -153,12 +155,16 @@ class CheckersBoard():
                         break
                     capture = True
                     pos = npos
+                    exclude_list.append(pos)
 
                 if capture:
                     additional = []
+                    assert depth < 32
                     self._generate_king_moves(
                         pos[0], pos[1], player, additional, capture_only=True,
-                        exclude_dir=(not vdir, not hdir))
+                        exclude_dir=(not vdir, not hdir),
+                        exclude_list=exclude_list,
+                        depth=depth + 1)
                     if additional:
                         moves.extend([[start] + m for m in additional])
                         continue
@@ -238,11 +244,9 @@ class CheckersBoard():
         if piece not in [self.WHITE, self.BLACK]:
             return piece
         if player == self.WHITE and coordinates[0] == 7:
-            if self._player_count(player) < self.NUM_PIECES:
-                return self.WHITE_KING
+            return self.WHITE_KING
         elif player == self.BLACK and coordinates[0] == 0:
-            if self._player_count(player) < self.NUM_PIECES:
-                return self.BLACK_KING
+            return self.BLACK_KING
         return piece
 
     def move(self, move):
