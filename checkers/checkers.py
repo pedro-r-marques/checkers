@@ -174,16 +174,22 @@ class CheckersBoard():
         if player not in [self.BLACK, self.WHITE]:
             raise ValueError('Invalid value for player: %r', player)
 
-        moves = []
+        all_moves = []
         for i in range(8):
             for j in range(8):
                 v = self.board[i][j]
+                if not self._is_player_piece(v, player):
+                    continue
+                moves = []
                 if player == v:
                     self._generate_piece_moves(i, j, player, moves)
-                if ((player == self.WHITE and v == self.WHITE_KING) or
-                        (player == self.BLACK and v == self.BLACK_KING)):
+                else:
                     self._generate_king_moves(i, j, player, moves)
-        return moves
+                assert all(self.get_position(pos) == 0
+                           for move in moves for pos in move[1:])
+                all_moves.extend(moves)
+
+        return all_moves
 
     def valid_position_moves(self, position):
         row, col = position
@@ -199,6 +205,8 @@ class CheckersBoard():
             self._generate_piece_moves(row, col, player, moves)
         if v in [self.WHITE_KING, self.BLACK_KING]:
             self._generate_king_moves(row, col, player, moves)
+        assert all(self.get_position(pos) == 0
+                   for move in moves for pos in move[1:])
         return moves
 
     def get_position(self, coordinates):
@@ -276,6 +284,7 @@ class CheckersBoard():
 
         for i in range(1, len(move)):
             npos = move[i]
+            assert self.get_position(npos) == 0
             vdir = npos[0] > pos[0]
             hdir = npos[1] > pos[1]
 
