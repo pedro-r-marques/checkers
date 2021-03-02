@@ -145,5 +145,21 @@ class CheckersBoardTest(unittest.TestCase):
         moves = board.valid_position_moves((0, 7))
         self.assertTrue(moves)
 
+    def test_board_moves(self):
+        state = [
+            [0, 4, 0, 0, 0, 0, 0, 4],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 4, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [3, 0, 0, 0, 4, 0, 0, 0],
+            [0, 0, 0, 0, 0, 1, 0, 0],
+            [0, 0, 0, 0, 3, 0, 3, 0]
+        ]
+        board = CheckersBoard(initial_state=state)
+        m1 = board.valid_position_moves((5, 0))
+        self.assertEqual(len(m1), 6)
+
+
 if __name__ == '__main__':
     unittest.main()

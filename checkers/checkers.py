@@ -116,7 +116,7 @@ class CheckersBoard():
                     gen_capture_move(nnrow, col + 2)
 
     def _generate_king_moves(self, row, col, player, moves, capture_only=False,
-                             exclude_dir=None, exclude_list=[], depth=0):
+                             exclude_dir=None, exclude_list=None, depth=0):
         """ kings can move in any diagonal (forward or backwards) and capture
             an opposing piece if there is an empty space beyond it.
         """
@@ -129,6 +129,8 @@ class CheckersBoard():
             return all(c >= 0 and c < self.BOARD_SIZE for c in pos)
 
         start = (row, col)
+        if exclude_list is None:
+            exclude_list = []
 
         for diagonal in range(4):
             vdir = diagonal // 2
@@ -154,8 +156,8 @@ class CheckersBoard():
                     if self.get_position(npos) != 0:
                         break
                     capture = True
-                    pos = npos
                     exclude_list.append(pos)
+                    pos = npos
 
                 if capture:
                     additional = []
