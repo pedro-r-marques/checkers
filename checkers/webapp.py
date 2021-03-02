@@ -6,7 +6,7 @@ import flask
 import uuid
 
 from .checkers import CheckersBoard
-from .play import make_play
+from .play import random_play
 
 
 app = flask.Flask("checkers", static_url_path='')
@@ -75,7 +75,7 @@ def make_move():
         return flask.make_response("Invalid player id", 400)
 
     if 'auto' in data and data['auto']:
-        move = make_play(board, player)
+        move = random_play(board, player, None)
         board.move(move)
         return flask.jsonify(move)
 
