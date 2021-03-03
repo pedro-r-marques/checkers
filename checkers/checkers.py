@@ -1,6 +1,7 @@
 """ Defines the checkers board and implements the rules of the game.
 """
 import copy
+import hashlib
 
 
 class CheckersBoard():
@@ -20,6 +21,23 @@ class CheckersBoard():
             self.board = CheckersBoard.initial_board()
         else:
             self.board = copy.deepcopy(initial_state)
+        self._hash_value = None
+
+    def __eq__(self, other):
+        return self.board == other.board
+
+    def __hash__(self):
+        if self._hash_value is not None:
+            return self._hash_value
+
+        pieces = self.pieces()
+        h = hashlib.md5()
+        for piece in pieces:
+            h.update(bytes(piece))
+        v = int(h.hexdigest()[-15:], 16)
+
+        self._hash_value = v
+        return v
 
     @classmethod
     def initial_board(cls):
@@ -56,6 +74,18 @@ class CheckersBoard():
                     b_count += 1
 
         return w_count, b_count
+
+    def piece_count(self):
+        """ Returns the per piece type counts.
+        """
+        counts = [0] * 4
+        for i in range(self.BOARD_SIZE):
+            for j in range(self.BOARD_SIZE):
+                v = self.board[i][j]
+                if v == 0:
+                    continue
+                counts[v - 1] += 1
+        return counts
 
     @classmethod
     def _is_player_piece(cls, v, player):
@@ -282,6 +312,7 @@ class CheckersBoard():
         if move not in allowed_moves:
             raise ValueError(f'Invalid move {move}')
 
+        self._hash_value = None
         self._clear_position(start)
         pos = start
 

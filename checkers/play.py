@@ -1,3 +1,4 @@
+import argparse
 import collections
 import hashlib
 import random
@@ -5,7 +6,8 @@ import random
 import tqdm
 
 from .checkers import CheckersBoard
-from .play_random import move_select as random_play
+from .play_random import move_select as play_random
+from .play_minmax import move_select as play_minmax
 
 
 class GameLogger():
@@ -52,7 +54,7 @@ class SummaryLogger():
             if not exists:
                 current[2].append((move, [(winner, turn_distance)]))
 
-    def save(self, filename):
+    def save(self, filename, threshold):
         with open(filename, 'w') as fp:
             for entry in self.data.values():
                 pieces, player, move_info = entry
@@ -64,7 +66,7 @@ class SummaryLogger():
                         counts[result[0] - 1] += 1
                     move_data.append((move, counts))
                     count += sum(counts)
-                if count < 10:
+                if count < threshold:
                     continue
                 line = '\t'.join([str(pieces), str(player), str(move_data)])
                 fp.write(line + '\n')
@@ -84,7 +86,7 @@ def play_game(fn_a, fn_b):
         if board.count()[0] == 0:
             winner = CheckersBoard.BLACK
             break
-        m2 = fn_a(board, CheckersBoard.WHITE, turn)
+        m2 = fn_b(board, CheckersBoard.WHITE, turn)
         logger.log(board, turn, CheckersBoard.WHITE, m2)
         if m2 is not None:
             board.move(m2)
@@ -97,16 +99,29 @@ def play_game(fn_a, fn_b):
 
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--count', type=int, default=10,
+        help="Number of games to play")
+    parser.add_argument(
+        '--save-log',
+        help="Save the summary of the played turns and outcomes")
+    parser.add_argument(
+        '--save-threshold', type=int, default=10,
+        help="Threshold for log saving.")
+    args = parser.parse_args()
+
     logger = SummaryLogger()
     counts = [0, 0]
-    for _ in tqdm.tqdm(range(10000)):
-        w, game_log, turns = play_game(random_play, random_play)
+    for _ in tqdm.tqdm(range(args.count)):
+        w, game_log, turns = play_game(play_random, play_minmax)
         if w == 0:
             continue
         logger.add(game_log, w, turns)
         counts[w - 1] += 1
     print('Wins', counts)
-    logger.save('play.log')
+    if args.save_log:
+        logger.save('play.log', args.save_threshold)
 
 
 if __name__ == '__main__':

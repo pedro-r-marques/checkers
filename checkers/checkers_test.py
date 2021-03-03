@@ -1,3 +1,4 @@
+import functools
 import unittest
 
 from checkers.checkers import CheckersBoard
@@ -159,6 +160,38 @@ class CheckersBoardTest(unittest.TestCase):
         board = CheckersBoard(initial_state=state)
         m1 = board.valid_position_moves((5, 0))
         self.assertEqual(len(m1), 6)
+
+
+class TestFunctionMemoization(unittest.TestCase):
+    def test_cache(self):
+        count = 0
+
+        @functools.lru_cache(maxsize=None)
+        def test_function(board):
+            nonlocal count
+            count += 1
+            return board.count()
+
+        state = [[0] * 8 for _ in range(8)]
+        state[0][5] = CheckersBoard.WHITE
+        state[3][4] = CheckersBoard.WHITE
+        state[4][3] = CheckersBoard.BLACK
+        state[4][1] = CheckersBoard.BLACK
+
+        board = CheckersBoard(initial_state=state)
+        nboard = CheckersBoard.copy(board)
+
+        self.assertEqual(test_function(board), (2, 2))
+        self.assertEqual(count, 1)
+        self.assertEqual(test_function(nboard), (2, 2))
+        self.assertEqual(count, 1)
+
+        nboard.move([(4, 3), (2, 5)])
+        self.assertEqual(test_function(nboard), (1, 2))
+        self.assertEqual(count, 2)
+
+        self.assertEqual(test_function(board), (2, 2))
+        self.assertEqual(count, 2)
 
 
 if __name__ == '__main__':
