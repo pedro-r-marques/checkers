@@ -6,7 +6,7 @@ import flask
 import uuid
 
 from .checkers import CheckersBoard
-from .play_random import move_select
+from .play_minmax import move_select
 
 
 app = flask.Flask("checkers", static_url_path='')

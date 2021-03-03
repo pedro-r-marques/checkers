@@ -103,30 +103,31 @@ class CheckersBoard():
             return v in [cls.WHITE, cls.WHITE_KING]
         return False
 
-    def _generate_piece_moves(
-            self, row, col, player, moves, capture_only=False):
+    def _generate_piece_moves(self, row, col, player, capture_only=False):
         """ pieces (men) can move forwards only.
         """
         nrow = row + 1 if player == self.WHITE else row - 1
         if nrow < 0 or nrow >= self.BOARD_SIZE:
-            return
+            return [], []
+
+        capture_moves = []
+        non_capture_moves = []
 
         def gen_capture_move(nnrow, nncol):
-            additional = []
-            self._generate_piece_moves(
-                nnrow, nncol, player, additional, capture_only=True)
+            additional, _ = self._generate_piece_moves(
+                nnrow, nncol, player, capture_only=True)
             if additional:
                 for m in additional:
-                    moves.append([(row, col)] + m)
+                    capture_moves.append([(row, col)] + m)
             else:
-                moves.append([(row, col), (nnrow, nncol)])
+                capture_moves.append([(row, col), (nnrow, nncol)])
 
         # left diagnonal
         if col > 0:
             v = self.board[nrow][col-1]
             if v == 0:
                 if not capture_only:
-                    moves.append([(row, col), (nrow, col - 1)])
+                    non_capture_moves.append([(row, col), (nrow, col - 1)])
             elif col > 1 and self._is_opposing_player_piece(v, player):
                 nnrow = nrow + 1 if player == self.WHITE else nrow - 1
                 if nnrow >= 0 and nnrow < 8 and self.board[nnrow][col - 2] == 0:
@@ -137,7 +138,7 @@ class CheckersBoard():
             v = self.board[nrow][col+1]
             if v == 0:
                 if not capture_only:
-                    moves.append([(row, col), (nrow, col + 1)])
+                    non_capture_moves.append([(row, col), (nrow, col + 1)])
             elif (col < self.BOARD_SIZE - 2 and
                   self._is_opposing_player_piece(v, player)):
                 nnrow = nrow + 1 if player == self.WHITE else nrow - 1
@@ -145,7 +146,9 @@ class CheckersBoard():
                         self.board[nnrow][col + 2] == 0):
                     gen_capture_move(nnrow, col + 2)
 
-    def _generate_king_moves(self, row, col, player, moves, capture_only=False,
+        return capture_moves, non_capture_moves
+
+    def _generate_king_moves(self, row, col, player, capture_only=False,
                              exclude_dir=None, exclude_list=None, depth=0):
         """ kings can move in any diagonal (forward or backwards) and capture
             an opposing piece if there is an empty space beyond it.
@@ -157,6 +160,9 @@ class CheckersBoard():
 
         def _is_valid_position(pos):
             return all(c >= 0 and c < self.BOARD_SIZE for c in pos)
+
+        capture_moves = []
+        non_capture_moves = []
 
         start = (row, col)
         if exclude_list is None:
@@ -190,21 +196,24 @@ class CheckersBoard():
                     pos = npos
 
                 if capture:
-                    additional = []
                     assert depth < 32
-                    self._generate_king_moves(
-                        pos[0], pos[1], player, additional, capture_only=True,
+                    additional, _ = self._generate_king_moves(
+                        pos[0], pos[1], player, capture_only=True,
                         exclude_dir=(not vdir, not hdir),
                         exclude_list=exclude_list.copy(),
                         depth=depth + 1)
                     if additional:
-                        moves.extend([[start] + m for m in additional])
+                        capture_moves.extend([[start] + m for m in additional])
                         continue
 
-                if capture or not capture_only:
-                    moves.append([start, pos])
+                if capture:
+                    capture_moves.append([start, pos])
+                elif not capture_only:
+                    non_capture_moves.append([start, pos])
 
-    def valid_moves(self, player):
+        return capture_moves, non_capture_moves
+
+    def valid_moves(self, player, select_capture=False):
         """
           Returns: list of valid moves where a move is described by a tuple
           with begin, end coordinates for a piece.
@@ -212,24 +221,30 @@ class CheckersBoard():
         if player not in [self.BLACK, self.WHITE]:
             raise ValueError('Invalid value for player: %r', player)
 
-        all_moves = []
+        move_lists = [[], []]
         for i in range(8):
             for j in range(8):
                 v = self.board[i][j]
                 if not self._is_player_piece(v, player):
                     continue
-                moves = []
+
                 if player == v:
-                    self._generate_piece_moves(i, j, player, moves)
+                    pos_moves = self._generate_piece_moves(i, j, player)
                 else:
-                    self._generate_king_moves(i, j, player, moves)
-                assert all(self.get_position(pos) == 0
-                           for move in moves for pos in move[1:])
-                all_moves.extend(moves)
+                    pos_moves = self._generate_king_moves(i, j, player)
 
-        return all_moves
+                for gbl_list, pos_list in zip(move_lists, pos_moves):
+                    assert all(self.get_position(pos) == 0
+                               for move in pos_list for pos in move[1:])
+                    gbl_list.extend(pos_list)
 
-    def valid_position_moves(self, position):
+        if select_capture:
+            if move_lists[0]:
+                return move_lists[0]
+            return move_lists[1]
+        return move_lists[0] + move_lists[1]
+
+    def valid_position_moves(self, position, select_capture=False):
         row, col = position
         v = self.board[row][col]
         if v in [self.WHITE, self.WHITE_KING]:
@@ -238,11 +253,16 @@ class CheckersBoard():
             player = self.BLACK
         else:
             raise ValueError('No piece in specified position')
-        moves = []
+
         if v in [self.WHITE, self.BLACK]:
-            self._generate_piece_moves(row, col, player, moves)
+            capture, non_capture = self._generate_piece_moves(row, col, player)
         if v in [self.WHITE_KING, self.BLACK_KING]:
-            self._generate_king_moves(row, col, player, moves)
+            capture, non_capture = self._generate_king_moves(row, col, player)
+
+        if select_capture and capture:
+            moves = capture
+        else:
+            moves = capture + non_capture
         assert all(self.get_position(pos) == 0
                    for move in moves for pos in move[1:])
         return moves
@@ -301,14 +321,7 @@ class CheckersBoard():
         else:
             raise ValueError(f'Invalid start position {start}')
 
-        allowed_moves = []
-        if piece in [self.WHITE_KING, self.BLACK_KING]:
-            self._generate_king_moves(
-                start[0], start[1], player, allowed_moves)
-        else:
-            self._generate_piece_moves(
-                start[0], start[1], player, allowed_moves)
-
+        allowed_moves = self.valid_position_moves(start)
         if move not in allowed_moves:
             raise ValueError(f'Invalid move {move}')
 

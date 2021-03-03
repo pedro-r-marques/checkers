@@ -49,7 +49,7 @@ def board_score(board, player):
 
 @functools.lru_cache(maxsize=32*1024)
 def move_minmax(board, player, depth, rand=False):
-    moves = board.valid_moves(player)
+    moves = board.valid_moves(player, select_capture=True)
     if not moves:
         return None, 0
     opponent = CheckersBoard.WHITE if player == CheckersBoard.BLACK \

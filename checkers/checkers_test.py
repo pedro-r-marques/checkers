@@ -33,7 +33,7 @@ class CheckersBoardTest(unittest.TestCase):
         state[5][4] = CheckersBoard.BLACK
         board = CheckersBoard(initial_state=state)
         moves = board.valid_moves(CheckersBoard.BLACK)
-        self.assertListEqual(moves, [[(5, 4), (4, 3)], [(5, 4), (3, 6)]])
+        self.assertListEqual(moves, [[(5, 4), (3, 6)], [(5, 4), (4, 3)]])
 
         board.move([(5, 4), (3, 6)])
         self.assertEqual(board.count(), (0, 1))
@@ -47,7 +47,7 @@ class CheckersBoardTest(unittest.TestCase):
         board = CheckersBoard(initial_state=state)
         moves = board.valid_moves(CheckersBoard.BLACK)
         self.assertEqual(len(moves), 2)
-        board.move(moves[1])
+        board.move(moves[0])
         self.assertEqual(board.count(), (0, 1))
         self.assertEqual(board.get_position((1, 4)), CheckersBoard.BLACK)
 
