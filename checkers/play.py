@@ -82,14 +82,14 @@ def play_game(fn_a, fn_b):
         m1 = fn_a(board, CheckersBoard.BLACK, turn)
         logger.log(board, turn, CheckersBoard.BLACK, m1)
         if m1 is not None:
-            board.move(m1)
+            board.move(m1, enable_validation=False)
         if board.count()[0] == 0:
             winner = CheckersBoard.BLACK
             break
         m2 = fn_b(board, CheckersBoard.WHITE, turn)
         logger.log(board, turn, CheckersBoard.WHITE, m2)
         if m2 is not None:
-            board.move(m2)
+            board.move(m2, enable_validation=False)
         if board.count()[1] == 0:
             winner = CheckersBoard.WHITE
             break
@@ -104,7 +104,7 @@ def main():
         '--count', type=int, default=10,
         help="Number of games to play")
     parser.add_argument(
-        '--save-log',
+        '--save-log', action="store_true",
         help="Save the summary of the played turns and outcomes")
     parser.add_argument(
         '--save-threshold', type=int, default=10,
@@ -114,7 +114,7 @@ def main():
     logger = SummaryLogger()
     counts = [0, 0]
     for _ in tqdm.tqdm(range(args.count)):
-        w, game_log, turns = play_game(play_random, play_minmax)
+        w, game_log, turns = play_game(play_minmax, play_minmax)
         if w == 0:
             continue
         logger.add(game_log, w, turns)

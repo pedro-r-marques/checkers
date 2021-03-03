@@ -1,6 +1,5 @@
 """ Defines the checkers board and implements the rules of the game.
 """
-import copy
 import hashlib
 
 
@@ -20,7 +19,7 @@ class CheckersBoard():
         if initial_state is None:
             self.board = CheckersBoard.initial_board()
         else:
-            self.board = copy.deepcopy(initial_state)
+            self.board = [x[:] for x in initial_state]
         self._hash_value = None
 
     def __eq__(self, other):
@@ -301,7 +300,7 @@ class CheckersBoard():
             return self.BLACK_KING
         return piece
 
-    def move(self, move):
+    def move(self, move, enable_validation=False):
         """ Changes the board by moving a piece.
             It verifies whether the move is valid and will eat pieces.
 
@@ -321,9 +320,10 @@ class CheckersBoard():
         else:
             raise ValueError(f'Invalid start position {start}')
 
-        allowed_moves = self.valid_position_moves(start)
-        if move not in allowed_moves:
-            raise ValueError(f'Invalid move {move}')
+        if enable_validation:
+            allowed_moves = self.valid_position_moves(start)
+            if move not in allowed_moves:
+                raise ValueError(f'Invalid move {move}')
 
         self._hash_value = None
         self._clear_position(start)
