@@ -80,6 +80,22 @@ function board_update_content(response) {
     }
 }
 
+function board_clear() {
+    let xboard = document.querySelector("#board");
+    let tbody = xboard.querySelector("tbody");
+
+    for (row = 0; row < 8; row++) {
+        for (col = 0; col < 8; col++) {
+            let tr = tbody.rows[row];
+            let td = tr.cells[col + 1];
+
+            td.innerHTML = "";
+            td.classList.remove('white-piece');
+            td.classList.remove('black-piece');
+        }
+    }
+}
+
 function board_update() {
     return fetch('/api/board')
         .then(response => response.json())
@@ -252,6 +268,8 @@ function game_restart() {
         clearPlayOptions(selectedCell[0], selectedCell[1]);
         selectedCell = null;
     }
+
+    board_clear();
 
     fetch('/api/restart', { 'method': 'POST' })
         .then((response) => {
