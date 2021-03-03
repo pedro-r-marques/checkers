@@ -165,7 +165,7 @@ class CheckersBoard():
                     self._generate_king_moves(
                         pos[0], pos[1], player, additional, capture_only=True,
                         exclude_dir=(not vdir, not hdir),
-                        exclude_list=exclude_list,
+                        exclude_list=exclude_list.copy(),
                         depth=depth + 1)
                     if additional:
                         moves.extend([[start] + m for m in additional])
