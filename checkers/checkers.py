@@ -15,11 +15,16 @@ class CheckersBoard():
     BOARD_SIZE = 8
     NUM_PIECES = 12  # Number of pieces per player
 
-    def __init__(self, initial_state=None):
-        if initial_state is None:
-            self.board = CheckersBoard.initial_board()
+    def __init__(self, initial_state=None, flat_state=None):
+        if flat_state is None:
+            if initial_state is None:
+                state = CheckersBoard.initial_board()
+            else:
+                state = initial_state
+            self.board = [v for row in state for v in row]
         else:
-            self.board = [x[:] for x in initial_state]
+            self.board = flat_state[:]
+        assert len(self.board) == self.BOARD_SIZE * self.BOARD_SIZE
         self._hash_value = None
 
     def __eq__(self, other):
@@ -29,10 +34,14 @@ class CheckersBoard():
         if self._hash_value is not None:
             return self._hash_value
 
-        pieces = self.pieces()
         h = hashlib.md5()
-        for piece in pieces:
-            h.update(bytes(piece))
+        for i in range(self.BOARD_SIZE):
+            for j in range(self.BOARD_SIZE):
+                v = self.board[i * self.BOARD_SIZE + j]
+                if v == 0:
+                    continue
+                piece = (i, j, v)
+                h.update(bytes(piece))
         v = int(h.hexdigest()[-15:], 16)
 
         self._hash_value = v
@@ -57,20 +66,18 @@ class CheckersBoard():
 
     @classmethod
     def copy(cls, obj):
-        return CheckersBoard(initial_state=obj.board)
+        return CheckersBoard(flat_state=obj.board)
 
     def count(self):
         """ Returns the number of white and black pieces in the board.
         """
         w_count = 0
         b_count = 0
-        for i in range(self.BOARD_SIZE):
-            for j in range(self.BOARD_SIZE):
-                v = self.board[i][j]
-                if v in [self.WHITE, self.WHITE_KING]:
-                    w_count += 1
-                elif v in [self.BLACK, self.BLACK_KING]:
-                    b_count += 1
+        for v in self.board:
+            if v in [self.WHITE, self.WHITE_KING]:
+                w_count += 1
+            elif v in [self.BLACK, self.BLACK_KING]:
+                b_count += 1
 
         return w_count, b_count
 
@@ -78,12 +85,10 @@ class CheckersBoard():
         """ Returns the per piece type counts.
         """
         counts = [0] * 4
-        for i in range(self.BOARD_SIZE):
-            for j in range(self.BOARD_SIZE):
-                v = self.board[i][j]
-                if v == 0:
-                    continue
-                counts[v - 1] += 1
+        for v in self.board:
+            if v == 0:
+                continue
+            counts[v - 1] += 1
         return counts
 
     @classmethod
@@ -123,18 +128,19 @@ class CheckersBoard():
 
         # left diagnonal
         if col > 0:
-            v = self.board[nrow][col-1]
+            v = self.board[nrow * self.BOARD_SIZE + col-1]
             if v == 0:
                 if not capture_only:
                     non_capture_moves.append([(row, col), (nrow, col - 1)])
             elif col > 1 and self._is_opposing_player_piece(v, player):
                 nnrow = nrow + 1 if player == self.WHITE else nrow - 1
-                if nnrow >= 0 and nnrow < 8 and self.board[nnrow][col - 2] == 0:
+                if (nnrow >= 0 and nnrow < 8 and
+                        self.board[nnrow * self.BOARD_SIZE + col - 2] == 0):
                     gen_capture_move(nnrow, col - 2)
 
         # right diagnonal
         if col < self.BOARD_SIZE - 1:
-            v = self.board[nrow][col+1]
+            v = self.board[nrow * self.BOARD_SIZE + col+1]
             if v == 0:
                 if not capture_only:
                     non_capture_moves.append([(row, col), (nrow, col + 1)])
@@ -142,7 +148,7 @@ class CheckersBoard():
                   self._is_opposing_player_piece(v, player)):
                 nnrow = nrow + 1 if player == self.WHITE else nrow - 1
                 if (nnrow >= 0 and nnrow < self.BOARD_SIZE and
-                        self.board[nnrow][col + 2] == 0):
+                        self.board[nnrow * self.BOARD_SIZE + col + 2] == 0):
                     gen_capture_move(nnrow, col + 2)
 
         return capture_moves, non_capture_moves
@@ -221,9 +227,9 @@ class CheckersBoard():
             raise ValueError('Invalid value for player: %r', player)
 
         move_lists = [[], []]
-        for i in range(8):
-            for j in range(8):
-                v = self.board[i][j]
+        for i in range(self.BOARD_SIZE):
+            for j in range(self.BOARD_SIZE):
+                v = self.board[i * self.BOARD_SIZE + j]
                 if not self._is_player_piece(v, player):
                     continue
 
@@ -245,7 +251,7 @@ class CheckersBoard():
 
     def valid_position_moves(self, position, select_capture=False):
         row, col = position
-        v = self.board[row][col]
+        v = self.board[row * self.BOARD_SIZE + col]
         if v in [self.WHITE, self.WHITE_KING]:
             player = self.WHITE
         elif v in [self.BLACK, self.BLACK_KING]:
@@ -267,13 +273,13 @@ class CheckersBoard():
         return moves
 
     def get_position(self, coordinates):
-        return self.board[coordinates[0]][coordinates[1]]
+        return self.board[coordinates[0] * self.BOARD_SIZE + coordinates[1]]
 
     def _clear_position(self, coordinates):
-        self.board[coordinates[0]][coordinates[1]] = 0
+        self.board[coordinates[0] * self.BOARD_SIZE + coordinates[1]] = 0
 
     def _set_position(self, coordinates, value):
-        self.board[coordinates[0]][coordinates[1]] = value
+        self.board[coordinates[0] * self.BOARD_SIZE + coordinates[1]] = value
 
     def _player_count(self, player):
         """ Check how many pieces this player has. If the count is less than
@@ -281,14 +287,12 @@ class CheckersBoard():
             to crown a king.
         """
         count = 0
-        for i in range(8):
-            for j in range(8):
-                v = self.board[i][j]
-                if v == player:
-                    count += 1
-                if ((player == self.WHITE and v == self.WHITE_KING) or
-                        (player == self.BLACK and v == self.BLACK_KING)):
-                    count += 2
+        for v in self.board:
+            if v == player:
+                count += 1
+            if ((player == self.WHITE and v == self.WHITE_KING) or
+                    (player == self.BLACK and v == self.BLACK_KING)):
+                count += 2
         return count
 
     def _maybe_promote_piece(self, coordinates, piece, player):
@@ -356,7 +360,7 @@ class CheckersBoard():
         results = []
         for i in range(self.BOARD_SIZE):
             for j in range(self.BOARD_SIZE):
-                piece = self.board[i][j]
+                piece = self.board[i * self.BOARD_SIZE + j]
                 if piece == 0:
                     continue
                 results.append((i, j, piece))
