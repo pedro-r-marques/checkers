@@ -3,7 +3,7 @@
 import functools
 import random
 
-from .checkers import CheckersBoard
+from .checkers_lib import PyCheckersBoard as CheckersBoard
 from .play_random import move_select as random_select
 
 SCORE_MIN = -1000
@@ -49,7 +49,7 @@ def board_score(board, player):
 
 @functools.lru_cache(maxsize=32*1024)
 def move_minmax(board, player, depth, rand=False):
-    moves = board.valid_moves(player, select_capture=True)
+    moves = board.valid_moves(player)
     if not moves:
         return None, 0
     opponent = CheckersBoard.WHITE if player == CheckersBoard.BLACK \
