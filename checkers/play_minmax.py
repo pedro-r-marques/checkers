@@ -63,7 +63,7 @@ def move_minmax(board, player, depth, rand=False):
         nboard = CheckersBoard.copy(board)
         nboard.move(move)
         score = board_score(nboard, player)
-        if depth > 0:
+        if depth > 0 and len(moves) > 1:
             _, opp_score = move_minmax(nboard, opponent, depth - 1)
         else:
             opp_score = 0
@@ -75,7 +75,7 @@ def move_minmax(board, player, depth, rand=False):
             best_index = i
 
     if rand:
-        weights = [x - min(deltas) for x in deltas]
+        weights = [x - min(deltas) + 1 for x in deltas]
         best_index = random.choices(range(len(moves)), weights=weights)[0]
 
     move = moves[best_index]
