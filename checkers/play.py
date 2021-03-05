@@ -5,7 +5,7 @@ import random
 
 import tqdm
 
-from .checkers import CheckersBoard
+from .checkers_lib import PyCheckersBoard as CheckersBoard
 from .play_random import move_select as play_random
 from .play_minmax import move_select as play_minmax
 
@@ -82,14 +82,14 @@ def play_game(fn_a, fn_b):
         m1 = fn_a(board, CheckersBoard.BLACK, turn)
         logger.log(board, turn, CheckersBoard.BLACK, m1)
         if m1 is not None:
-            board.move(m1, enable_validation=False)
+            board.move(m1)
         if board.count()[0] == 0:
             winner = CheckersBoard.BLACK
             break
         m2 = fn_b(board, CheckersBoard.WHITE, turn)
         logger.log(board, turn, CheckersBoard.WHITE, m2)
         if m2 is not None:
-            board.move(m2, enable_validation=False)
+            board.move(m2)
         if board.count()[1] == 0:
             winner = CheckersBoard.WHITE
             break

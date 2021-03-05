@@ -1,7 +1,7 @@
 import functools
 import unittest
 
-from checkers.checkers import CheckersBoard
+from checkers.checkers_lib import PyCheckersBoard as CheckersBoard
 
 
 class CheckersBoardTest(unittest.TestCase):
@@ -31,9 +31,10 @@ class CheckersBoardTest(unittest.TestCase):
         state = [[0] * 8 for _ in range(8)]
         state[4][5] = CheckersBoard.WHITE
         state[5][4] = CheckersBoard.BLACK
-        board = CheckersBoard(initial_state=state)
+        board = CheckersBoard()
+        board.initialize(state)
         moves = board.valid_moves(CheckersBoard.BLACK)
-        self.assertListEqual(moves, [[(5, 4), (3, 6)], [(5, 4), (4, 3)]])
+        self.assertListEqual(moves, [[(5, 4), (3, 6)]])
 
         board.move([(5, 4), (3, 6)])
         self.assertEqual(board.count(), (0, 1))
@@ -44,9 +45,10 @@ class CheckersBoardTest(unittest.TestCase):
         state[2][5] = CheckersBoard.WHITE
         state[4][5] = CheckersBoard.WHITE
         state[5][4] = CheckersBoard.BLACK
-        board = CheckersBoard(initial_state=state)
+        board = CheckersBoard()
+        board.initialize(state)
         moves = board.valid_moves(CheckersBoard.BLACK)
-        self.assertEqual(len(moves), 2)
+        self.assertEqual(len(moves), 1)
         board.move(moves[0])
         self.assertEqual(board.count(), (0, 1))
         self.assertEqual(board.get_position((1, 4)), CheckersBoard.BLACK)
@@ -55,7 +57,8 @@ class CheckersBoardTest(unittest.TestCase):
         state = [[0] * 8 for _ in range(8)]
         state[4][7] = CheckersBoard.WHITE
         state[5][6] = CheckersBoard.BLACK
-        board = CheckersBoard(initial_state=state)
+        board = CheckersBoard()
+        board.initialize(state)
         moves = board.valid_moves(CheckersBoard.BLACK)
         self.assertEqual(moves, [[(5, 6), (4, 5)]])
 
@@ -63,7 +66,8 @@ class CheckersBoardTest(unittest.TestCase):
         state = [[0] * 8 for _ in range(8)]
         state[1][1] = CheckersBoard.BLACK
         state[6][0] = CheckersBoard.WHITE
-        board = CheckersBoard(initial_state=state)
+        board = CheckersBoard()
+        board.initialize(state)
         board.move([(1, 1), (0, 2)])
         self.assertEqual(board.get_position((0, 2)), CheckersBoard.BLACK_KING)
         board.move([(6, 0), (7, 1)])
@@ -73,7 +77,8 @@ class CheckersBoardTest(unittest.TestCase):
         state = [[0] * 8 for _ in range(8)]
         state[0][2] = CheckersBoard.BLACK_KING
         state[3][5] = CheckersBoard.WHITE
-        board = CheckersBoard(initial_state=state)
+        board = CheckersBoard()
+        board.initialize(state)
         board.move([(0, 2), (4, 6)])
         self.assertEqual(board.count(), (0, 1))
         self.assertEqual(board.get_position((4, 6)), CheckersBoard.BLACK_KING)
@@ -82,7 +87,8 @@ class CheckersBoardTest(unittest.TestCase):
         state = [[0] * 8 for _ in range(8)]
         state[0][2] = CheckersBoard.BLACK_KING
         state[3][5] = CheckersBoard.WHITE
-        board = CheckersBoard(initial_state=state)
+        board = CheckersBoard()
+        board.initialize(state)
         board.move([(0, 2), (2, 0)])
         self.assertEqual(board.count(), (1, 1))
         self.assertEqual(board.get_position((2, 0)), CheckersBoard.BLACK_KING)
@@ -93,7 +99,8 @@ class CheckersBoardTest(unittest.TestCase):
         state[3][5] = CheckersBoard.WHITE
         state[6][4] = CheckersBoard.WHITE
         state[5][1] = CheckersBoard.WHITE
-        board = CheckersBoard(initial_state=state)
+        board = CheckersBoard()
+        board.initialize(state)
         board.move([(0, 2), (4, 6), (7, 3), (4, 0)])
         self.assertEqual(board.count(), (0, 1))
         self.assertEqual(board.get_position((4, 0)), CheckersBoard.BLACK_KING)
@@ -104,7 +111,8 @@ class CheckersBoardTest(unittest.TestCase):
         state[3][5] = CheckersBoard.WHITE
         state[6][4] = CheckersBoard.WHITE
         state[7][3] = CheckersBoard.WHITE
-        board = CheckersBoard(initial_state=state)
+        board = CheckersBoard()
+        board.initialize(state)
         board.move([(0, 2), (4, 6)])
         self.assertEqual(board.count(), (2, 1))
         self.assertEqual(board.get_position((4, 6)), CheckersBoard.BLACK_KING)
@@ -126,8 +134,9 @@ class CheckersBoardTest(unittest.TestCase):
         state[2][7] = CheckersBoard.BLACK
         state[1][0] = CheckersBoard.WHITE
 
-        board = CheckersBoard(initial_state=state)
-        moves = board.valid_position_moves((7, 4))
+        board = CheckersBoard()
+        board.initialize(state)
+        moves, _ = board.position_moves((7, 4))
         self.assertTrue(bool(moves))
         self.assertTrue(all(board.get_position(m[-1]) == 0 for m in moves))
 
@@ -142,9 +151,10 @@ class CheckersBoardTest(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0, 0]
         ]
-        board = CheckersBoard(initial_state=state)
-        moves = board.valid_position_moves((0, 7))
-        self.assertTrue(moves)
+        board = CheckersBoard()
+        board.initialize(state)
+        captures, _ = board.position_moves((0, 7))
+        self.assertTrue(captures)
 
     def test_board_moves(self):
         state = [
@@ -157,9 +167,10 @@ class CheckersBoardTest(unittest.TestCase):
             [0, 0, 0, 0, 0, 1, 0, 0],
             [0, 0, 0, 0, 3, 0, 3, 0]
         ]
-        board = CheckersBoard(initial_state=state)
-        m1 = board.valid_position_moves((5, 0))
-        self.assertEqual(len(m1), 6)
+        board = CheckersBoard()
+        board.initialize(state)
+        m1, _ = board.position_moves((5, 0))
+        self.assertEqual(len(m1), 2)
 
 
 class TestFunctionMemoization(unittest.TestCase):
@@ -178,7 +189,8 @@ class TestFunctionMemoization(unittest.TestCase):
         state[4][3] = CheckersBoard.BLACK
         state[4][1] = CheckersBoard.BLACK
 
-        board = CheckersBoard(initial_state=state)
+        board = CheckersBoard()
+        board.initialize(state)
         nboard = CheckersBoard.copy(board)
 
         self.assertEqual(test_function(board), (2, 2))

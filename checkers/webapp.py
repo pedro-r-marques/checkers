@@ -5,7 +5,7 @@ import os
 import flask
 import uuid
 
-from .checkers import CheckersBoard
+from .checkers_lib import PyCheckersBoard as CheckersBoard
 from .play_minmax import move_select
 
 
@@ -54,7 +54,15 @@ def get_valid_moves(row, col):
     pieces = board.count()
     if any(c == 0 for c in pieces):
         return flask.make_response("Game over", 400)
-    moves = board.valid_position_moves(coordinates)
+    piece = board.get_position(coordinates)
+    if piece in [CheckersBoard.WHITE, CheckersBoard.WHITE_KING]:
+        player = CheckersBoard.WHITE
+    elif piece in [CheckersBoard.BLACK, CheckersBoard.BLACK_KING]:
+        player = CheckersBoard.BLACK
+    else:
+        return flask.make_response("Empty position", 400)
+    player_moves = board.valid_moves(player)
+    moves = [m for m in player_moves if m[0] == coordinates]
     return flask.jsonify(moves)
 
 
@@ -82,11 +90,17 @@ def make_move():
     if 'start' not in data or 'end' not in data:
         return flask.make_response('start and end positions must be specified')
 
-    available = board.valid_position_moves(tuple(data['start']))
-    opts = [m for m in available if m[-1] == tuple(data['end'])]
-    if not opts:
+    player_moves = board.valid_moves(player)
+
+    move = None
+    for m in player_moves:
+        if m[0] == tuple(data['start']) and m[-1] == tuple(data['end']):
+            move = m
+            break
+
+    if move is None:
         return flask.make_response('invalid move', 400)
-    board.move(opts[0])
+    board.move(move)
 
     return flask.make_response('OK', 200)
 

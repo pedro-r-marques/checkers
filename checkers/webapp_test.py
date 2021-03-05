@@ -28,3 +28,7 @@ class WebappTest(unittest.TestCase):
             rv = self.client.post(
                 '/api/move', json={'player': 1, 'auto': True})
             self.assertEqual(rv.status_code, 200)
+
+
+if __name__ == '__main__':
+    unittest.main()
