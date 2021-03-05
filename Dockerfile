@@ -1,7 +1,10 @@
-FROM python:3.8
+FROM python:3.9
+RUN apt-get update && apt-get install -y g++
 WORKDIR /workdir
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY . .
 RUN python -m setup install
-ENTRYPOINT [ "gunicorn", "checkers:app" ]
+WORKDIR /
+RUN rm -rf /workdir
+ENTRYPOINT [ "gunicorn", "-b", "0.0.0.0:8000", "checkers.webapp:app" ]
