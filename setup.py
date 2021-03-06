@@ -19,5 +19,5 @@ setuptools.setup(name='checkers',
                      'flask',
                  ],
                  include_package_data=True,
-                 python_requires='>=3.8',
+                 python_requires='>=3.9',
                  version='0.0.1')

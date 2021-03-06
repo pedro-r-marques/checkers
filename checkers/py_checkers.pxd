@@ -46,6 +46,7 @@ cdef extern from "checkers.h":
         Piece get_position(Position)
 
         cpplist[vector[unsigned char]] pieces()
+        const char* data()
 
         void move(const Move&)
 

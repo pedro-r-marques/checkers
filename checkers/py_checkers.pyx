@@ -1,5 +1,6 @@
 # distutils: language = c++
 
+from cpython.bytes cimport PyBytes_FromStringAndSize
 from libcpp.vector cimport vector
 from checkers.py_checkers cimport CheckersBoard
 
@@ -55,6 +56,9 @@ cdef class PyCheckersBoard:
 
     def pieces(self):
         return self.c_impl.pieces()
+
+    def board(self):
+        return PyBytes_FromStringAndSize(self.c_impl.data(), 64)
 
     def move(self, mv):
         return self.c_impl.move(mv)    

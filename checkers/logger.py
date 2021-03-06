@@ -1,12 +1,18 @@
 import collections
 import hashlib
+import pickle
+
 
 class GameLogger():
     def __init__(self):
         self.history = collections.deque()
 
     def log(self, board, turn, player, move):
-        self.history.append((board.pieces(), player, move, turn))
+        self.history.append((board.board(), turn, player, move))
+
+    def save(self, filename):
+        with open(filename, 'wb') as fp:
+            pickle.dump(self.history, fp)
 
 
 class SummaryLogger():
@@ -24,7 +30,7 @@ class SummaryLogger():
 
     def add(self, game_log, winner, turns):
         for log_entry in game_log.history:
-            pieces, player, move, turn = log_entry
+            pieces, turn, player, move = log_entry
             turn_distance = turns - turn
             h = self.log_hash(log_entry)
             if h not in self.data:

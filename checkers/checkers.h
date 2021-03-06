@@ -54,6 +54,9 @@ class CheckersBoard {
 
     std::list<PositionPiece> pieces() const;
 
+    // returns a pointer to an  64 byte array with the board values.
+    const char *data() const { return board_.data(); }
+
     void move(const Move &move);
 
    private:
