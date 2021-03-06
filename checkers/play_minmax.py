@@ -48,7 +48,8 @@ def board_score(board, player):
 
 
 @functools.lru_cache(maxsize=32*1024)
-def move_minmax(board, player, depth, rand=False):
+def move_minmax(board, player, depth, rand_move_select=False,
+                return_debug_info=False):
     moves = board.valid_moves(player)
     if not moves:
         return None, 0
@@ -74,8 +75,14 @@ def move_minmax(board, player, depth, rand=False):
             best_delta = delta
             best_index = i
 
-    if rand:
-        weights = [x - min(deltas) + 1 for x in deltas]
+    def make_weights(deltas):
+        return [x - min(deltas) + 1 for x in deltas]
+
+    if return_debug_info:
+        return moves, scores, make_weights(deltas)
+
+    if rand_move_select:
+        weights = make_weights(deltas)
         best_index = random.choices(range(len(moves)), weights=weights)[0]
 
     move = moves[best_index]
@@ -84,8 +91,17 @@ def move_minmax(board, player, depth, rand=False):
     return move, score
 
 
+def play_minimax_debug(board, player, turn):
+    moves, scores, weights = move_minmax(
+        board, player, 4, return_debug_info=True)
+    result = []
+    for move, score, weight in zip(moves, scores, weights):
+        result.append({'move': move, 'score': score, 'weight': weight})
+    return result
+
+
 def move_select(board, player, turn=None):
     if turn is not None and turn == 0:
         return random_select(board, player, turn)
-    m, _ = move_minmax(board, player, 4, rand=True)
+    m, _ = move_minmax(board, player, 4, rand_move_select=True)
     return m

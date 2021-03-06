@@ -21,12 +21,14 @@ class SessionState():
 
     def log_move(self, player, move):
         self.log.log(self.board, self.turn, player, move)
-        filename = self.tstamp.strftime("%Y%m%d%H%M%S%f")
+        filename = self.tstamp.strftime("%Y%m%d%H%M%S%f") + ".dat"
         self.log.save(os.path.join(os.getenv('SESSION_LOG_DIR', ""), filename))
         self.turn += 1
 
 
-app = flask.Flask("checkers", static_url_path='')
+source_dir = os.path.dirname(os.path.abspath(__file__))
+app = flask.Flask("checkers", static_url_path='',
+                  static_folder=os.path.join(source_dir, 'static'))
 app.secret_key = os.getenv("SECRET_KEY", "dev")
 
 
@@ -42,14 +44,9 @@ def get_session_state():
     return global_sessions[session_id]
 
 
-@app.route('/checkers.js')
-def script():
-    return flask.send_from_directory('static', 'checkers.js')
-
-
 @app.route('/', methods=['GET'])
 def index():
-    return flask.send_from_directory('static', 'index.html')
+    return flask.redirect('index.html', 303)
 
 
 @app.route('/api/board',  methods=['GET'])

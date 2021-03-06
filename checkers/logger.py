@@ -3,12 +3,16 @@ import hashlib
 import pickle
 
 
+LogEntry = collections.namedtuple(
+    'LogEntry', ['board', 'turn', 'player', 'move'])
+
+
 class GameLogger():
     def __init__(self):
         self.history = collections.deque()
 
     def log(self, board, turn, player, move):
-        self.history.append((board.board(), turn, player, move))
+        self.history.append(LogEntry(board.board(), turn, player, move))
 
     def save(self, filename):
         with open(filename, 'wb') as fp:
