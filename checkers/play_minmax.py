@@ -57,32 +57,30 @@ def move_minmax(board, player, depth, rand_move_select=False,
         else CheckersBoard.BLACK
 
     scores = []
-    deltas = []
-    best_delta = SCORE_MIN
+    best_score = SCORE_MIN
     best_index = 0
     for i, move in enumerate(moves):
         nboard = CheckersBoard.copy(board)
         nboard.move(move)
         score = board_score(nboard, player)
-        if depth > 0 and len(moves) > 1:
+        if depth > 0:
             _, opp_score = move_minmax(nboard, opponent, depth - 1)
         else:
             opp_score = 0
-        delta = score - opp_score
+        score = score - opp_score
         scores.append(score)
-        deltas.append(delta)
-        if delta > best_delta:
-            best_delta = delta
+        if score > best_score:
+            best_score = score
             best_index = i
 
-    def make_weights(deltas):
-        return [x - min(deltas) + 1 for x in deltas]
+    def make_weights(scores):
+        return [x - min(scores) + 1 for x in scores]
 
     if return_debug_info:
-        return moves, scores, make_weights(deltas)
+        return moves, scores, make_weights(scores)
 
     if rand_move_select:
-        weights = make_weights(deltas)
+        weights = make_weights(scores)
         best_index = random.choices(range(len(moves)), weights=weights)[0]
 
     move = moves[best_index]

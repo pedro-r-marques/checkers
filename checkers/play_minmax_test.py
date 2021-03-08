@@ -46,17 +46,6 @@ class TestMinMax(unittest.TestCase):
         m = move_select(board, CheckersBoard.WHITE)
         self.assertIsNotNone(m)
 
-    def test_stalemate(self):
-        state = [
-            [0, 0, 0, 0, 0, 0, 0, 4],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 1],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0, 0],
-            [0, 0, 3, 0, 3, 0, 3, 0],
-        ]
 
 if __name__ == '__main__':
     unittest.main()
