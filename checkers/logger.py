@@ -23,26 +23,25 @@ class SummaryLogger():
     def __init__(self):
         self.data = {}
 
-    @staticmethod
-    def log_hash(log_entry):
-        pieces, player, _, _ = log_entry
+    @classmethod
+    def hash(cls, log_entry):
+        board_arr, _, player, _ = log_entry
         h = hashlib.md5()
+        h.update(board_arr)
         h.update(bytes(player))
-        for piece in pieces:
-            h.update(bytes(piece))
-        return h.digest()
+        return int.from_bytes(h.digest()[-16:], "big", signed=False)
 
     def add(self, game_log, winner, turns):
         for log_entry in game_log.history:
-            pieces, turn, player, move = log_entry
+            board_arr, turn, player, move = log_entry
             turn_distance = turns - turn
-            h = self.log_hash(log_entry)
+            h = self.hash(log_entry)
             if h not in self.data:
                 results = [(move, [(winner, turn_distance)])]
-                self.data[h] = (pieces, player, results)
+                self.data[h] = (board_arr, player, results)
                 continue
             current = self.data[h]
-            if current[0] != pieces or current[1] != player:
+            if current[0] != board_arr or current[1] != player:
                 print('hash collision')
                 continue
 

@@ -2,7 +2,7 @@ import random
 import unittest
 
 from .checkers_lib import PyCheckersBoard as CheckersBoard
-from .play_minmax import board_score, move_select
+from .play_minmax import MinMaxPlayer, board_score, move_minmax
 
 
 class TestMinMax(unittest.TestCase):
@@ -18,7 +18,8 @@ class TestMinMax(unittest.TestCase):
 
         board = CheckersBoard()
         board.initialize(state)
-        m = move_select(board, CheckersBoard.BLACK)
+        algorithm = MinMaxPlayer()
+        m = algorithm.move_select(board, CheckersBoard.BLACK)
         self.assertEqual(m, [(4, 3), (2, 5)])
 
     def test_init_board(self):
@@ -27,10 +28,11 @@ class TestMinMax(unittest.TestCase):
                          board_score(board, CheckersBoard.BLACK))
         board.move([(5, 0), (4, 1)])
         board.move([(2, 7), (3, 6)])
-        m = move_select(board, CheckersBoard.BLACK)
+        algorithm = MinMaxPlayer()
+        m = algorithm.move_select(board, CheckersBoard.BLACK)
         self.assertTrue(m is not None)
 
-    def test_weights(self):
+    def test_single_option(self):
         state = [
             [0, 1, 0, 1, 0, 0, 0, 1],
             [1, 0, 1, 0, 1, 0, 1, 0],
@@ -43,9 +45,45 @@ class TestMinMax(unittest.TestCase):
         ]
         board = CheckersBoard()
         board.initialize(state)
-        m = move_select(board, CheckersBoard.WHITE)
-        self.assertIsNotNone(m)
+        algorithm = MinMaxPlayer()
+        m = algorithm.move_select(board, CheckersBoard.WHITE)
+        self.assertEqual(m, [(1, 6), (3, 4), (5, 6)])
 
+    def test_init_stage(self):
+        state = [
+            [0, 1, 0, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 1, 0, 1, 0],
+            [0, 0, 0, 1, 0, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 2, 0, 2],
+            [2, 0, 2, 0, 0, 0, 0, 0],
+            [0, 2, 0, 2, 0, 2, 0, 2],
+            [2, 0, 2, 0, 2, 0, 2, 0],
+        ]
+        board = CheckersBoard()
+        board.initialize(state)
+        algorithm = MinMaxPlayer(max_depth=6)
+        move_minmax.cache_clear()
+        algorithm.move_select(board, CheckersBoard.WHITE)
+        print(move_minmax.cache_info())
+
+    def test_horizon(self):
+        state = [
+            [0, 0, 0, 1, 0, 0, 0, 1],
+            [0, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 2, 0, 0],
+            [2, 0, 1, 0, 0, 0, 2, 0],
+            [0, 0, 0, 0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 2, 0, 0, 0, 2, 0, 0],
+            [0, 0, 0, 0, 0, 0, 2, 0],
+        ]
+        board = CheckersBoard()
+        board.initialize(state)
+        algo = MinMaxPlayer(max_depth=6)
+        move_minmax.cache_clear()
+        m = algo.move_select(board, CheckersBoard.WHITE)
+        print(move_minmax.cache_info())
 
 if __name__ == '__main__':
     unittest.main()
