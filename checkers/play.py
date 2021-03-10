@@ -58,14 +58,14 @@ def main():
         help="Threshold for log saving.")
     args = parser.parse_args()
 
-    w_player = MinMaxPlayer(max_depth=4, select_best=True)
-    b_player = MinMaxAdaptative()
+    b_player = MinMaxPlayer(max_depth=4, select_best=True)
+    w_player = MinMaxAdaptative()
 
     logger = SummaryLogger()
     counts = [0, 0]
     for _ in tqdm.tqdm(range(args.count)):
         w, game_log, turns = play_game(
-            w_player.move_select, b_player.move_select, runaway_trace=0.5)
+            b_player.move_select, w_player.move_select, runaway_trace=0.5)
         if w == 0:
             continue
         logger.add(game_log, w, turns)

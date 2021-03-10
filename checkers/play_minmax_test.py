@@ -85,5 +85,24 @@ class TestMinMax(unittest.TestCase):
         m = algo.move_select(board, CheckersBoard.WHITE)
         print(move_minmax.cache_info())
 
+    def test_2kings(self):
+        state = [
+            [0, 0, 0, 0, 0, 4, 0, 0],
+            [0, 0, 0, 0, 0, 0, 3, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+        ]
+        board = CheckersBoard()
+        board.initialize(state)
+        algo = MinMaxPlayer(max_depth=4)
+        move_minmax.cache_clear()
+        m = algo.move_select(board, CheckersBoard.WHITE)
+        print(move_minmax.cache_info())
+
+
 if __name__ == '__main__':
     unittest.main()
