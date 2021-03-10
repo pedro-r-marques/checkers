@@ -2,7 +2,7 @@ import random
 import unittest
 
 from .checkers_lib import PyCheckersBoard as CheckersBoard
-from .play_minmax import board_score, move_select
+from .play_minmax import board_score, MinMaxPlayer
 
 
 class TestMinMax(unittest.TestCase):
@@ -18,7 +18,8 @@ class TestMinMax(unittest.TestCase):
 
         board = CheckersBoard()
         board.initialize(state)
-        m = move_select(board, CheckersBoard.BLACK)
+        algorithm = MinMaxPlayer()
+        m = algorithm.move_select(board, CheckersBoard.BLACK)
         self.assertEqual(m, [(4, 3), (2, 5)])
 
     def test_init_board(self):
@@ -27,7 +28,8 @@ class TestMinMax(unittest.TestCase):
                          board_score(board, CheckersBoard.BLACK))
         board.move([(5, 0), (4, 1)])
         board.move([(2, 7), (3, 6)])
-        m = move_select(board, CheckersBoard.BLACK)
+        algorithm = MinMaxPlayer()
+        m = algorithm.move_select(board, CheckersBoard.BLACK)
         self.assertTrue(m is not None)
 
     def test_weights(self):
@@ -43,7 +45,8 @@ class TestMinMax(unittest.TestCase):
         ]
         board = CheckersBoard()
         board.initialize(state)
-        m = move_select(board, CheckersBoard.WHITE)
+        algorithm = MinMaxPlayer()
+        m = algorithm.move_select(board, CheckersBoard.WHITE)
         self.assertIsNotNone(m)
 
 

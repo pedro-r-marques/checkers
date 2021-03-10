@@ -8,7 +8,7 @@ import cachetools
 import flask
 
 from .checkers_lib import PyCheckersBoard as CheckersBoard
-from .play_minmax import move_select
+from .play_minmax import MinMaxPlayer
 from .logger import GameLogger
 
 
@@ -33,6 +33,8 @@ app.secret_key = os.getenv("SECRET_KEY", "dev")
 
 
 global_sessions = cachetools.TTLCache(maxsize=1024, ttl=60*30)
+
+algorithm = MinMaxPlayer(select_best=True)
 
 
 def get_session_state():
@@ -101,8 +103,9 @@ def make_move():
         return flask.make_response("Invalid player id", 400)
 
     if 'auto' in data and data['auto']:
-        move = move_select(board, player, None)
-        state.log_move(player, move)
+        move = algorithm.move_select(board, player, None)
+        if not app.testing:
+            state.log_move(player, move)
         board.move(move)
         return flask.jsonify(move)
 
@@ -119,7 +122,8 @@ def make_move():
 
     if move is None:
         return flask.make_response('invalid move', 400)
-    state.log_move(player, move)
+    if not app.testing:
+        state.log_move(player, move)
     board.move(move)
 
     return flask.make_response('OK', 200)

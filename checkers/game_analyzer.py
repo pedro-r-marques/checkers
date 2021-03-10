@@ -8,13 +8,13 @@ import pickle
 import os
 
 from .checkers_lib import PyCheckersBoard as CheckersBoard
-
-from .play_minmax import play_minimax_debug
+from .play_minmax import MinMaxPlayer
 
 source_dir = os.path.dirname(os.path.abspath(__file__))
 app = flask.Flask("analyzer", static_folder=os.path.join(source_dir, 'static'))
 log_history = None
 
+algorithm = MinMaxPlayer()
 
 @app.route('/', methods=['GET'])
 def index():
@@ -71,7 +71,7 @@ def get_move_info(turn):
         'player': log_entry[2],
         'move': log_entry[3],
         'result': last_piece_count(last_entry[0], last_entry[3]),
-        'debug': play_minimax_debug(board, log_entry[2], log_entry[1])
+        'debug': algorithm.move_info(board, log_entry[2], log_entry[1])
     }
     return flask.jsonify(response)
 

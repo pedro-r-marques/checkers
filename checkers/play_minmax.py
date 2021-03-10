@@ -48,11 +48,10 @@ def board_score(board, player):
 
 
 @functools.lru_cache(maxsize=32*1024)
-def move_minmax(board, player, depth, rand_move_select=False,
-                return_debug_info=False):
+def move_minmax(board, player, depth):
     moves = board.valid_moves(player)
     if not moves:
-        return None, 0
+        return [], [0], 0
     opponent = CheckersBoard.WHITE if player == CheckersBoard.BLACK \
         else CheckersBoard.BLACK
 
@@ -64,7 +63,8 @@ def move_minmax(board, player, depth, rand_move_select=False,
         nboard.move(move)
         score = board_score(nboard, player)
         if depth > 0:
-            _, opp_score = move_minmax(nboard, opponent, depth - 1)
+            _, opp_scores, ix = move_minmax(nboard, opponent, depth - 1)
+            opp_score = opp_scores[ix]
         else:
             opp_score = 0
         score = score - opp_score
@@ -73,33 +73,35 @@ def move_minmax(board, player, depth, rand_move_select=False,
             best_score = score
             best_index = i
 
-    def make_weights(scores):
+    return moves, scores, best_index
+
+
+class MinMaxPlayer(object):
+    def __init__(self, max_depth=4, select_best=False):
+        self.max_depth = max_depth
+        self.select_best = select_best
+
+    def make_weights(self, scores):
+        if self.select_best:
+            m = max(scores)
+            return [1 if v == m else 0 for v in scores]
         return [x - min(scores) + 1 for x in scores]
 
-    if return_debug_info:
-        return moves, scores, make_weights(scores)
+    def move_info(self, board, player, turn):
+        moves, scores, _ = move_minmax(
+            board, player, self.max_depth)
+        weights = self.make_weights(scores)
+        result = []
+        for move, score, weight in zip(moves, scores, weights):
+            result.append({'move': move, 'score': score, 'weight': weight})
+        return result
 
-    if rand_move_select:
-        weights = make_weights(scores)
-        best_index = random.choices(range(len(moves)), weights=weights)[0]
-
-    move = moves[best_index]
-    score = scores[best_index]
-
-    return move, score
-
-
-def play_minimax_debug(board, player, turn):
-    moves, scores, weights = move_minmax(
-        board, player, 4, return_debug_info=True)
-    result = []
-    for move, score, weight in zip(moves, scores, weights):
-        result.append({'move': move, 'score': score, 'weight': weight})
-    return result
-
-
-def move_select(board, player, turn=None):
-    if turn is not None and turn == 0:
-        return random_select(board, player, turn)
-    m, _ = move_minmax(board, player, 4, rand_move_select=True)
-    return m
+    def move_select(self, board, player, turn=None):
+        if turn is not None and turn == 0:
+            return random_select(board, player, turn)
+        moves, scores, _ = move_minmax(board, player, self.max_depth)
+        if not moves:
+            return None
+        weights = self.make_weights(scores)
+        m = random.choices(moves, weights=weights)
+        return m[0]
