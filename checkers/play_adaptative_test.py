@@ -24,7 +24,6 @@ class MinMaxAdaptativeTest(unittest.TestCase):
         board.initialize(state)
         algo = MinMaxAdaptative()
         m = algo.move_select(board, CheckersBoard.WHITE)
-        print(m)
         # The goal is to avoid the move [(1, 2), (2, 3)]
         self.assertIsNotNone(m)
 
@@ -43,7 +42,6 @@ class MinMaxAdaptativeTest(unittest.TestCase):
         board.initialize(state)
         algo = MinMaxAdaptative()
         m = algo.move_select(board, CheckersBoard.WHITE)
-        print(m)
         self.assertIsNotNone(m)
 
     def test_2kings(self):
@@ -61,7 +59,7 @@ class MinMaxAdaptativeTest(unittest.TestCase):
         board.initialize(state)
         algo = MinMaxAdaptative()
         m = algo.move_select(board, CheckersBoard.WHITE)
-        print(m)
+        self.assertIsNotNone(m)
 
     def test_no_moves(self):
         pieces = [[0, 5, 1], [0, 7, 1], [1, 2, 1], [2, 1, 1],
@@ -74,3 +72,14 @@ class MinMaxAdaptativeTest(unittest.TestCase):
         algo = MinMaxAdaptative()
         m = algo.move_select(board, CheckersBoard.BLACK)
         self.assertIsNone(m)
+
+    def test_slow(self):
+        pieces = [[2, 5, 3], [3, 0, 3], [4, 5, 4], [5, 0, 2], [7, 6, 4]]
+        state = [[0] * 8 for _ in range(8)]
+        for row, col, piece in pieces:
+            state[row][col] = piece
+        board = CheckersBoard()
+        board.initialize(state)
+        algo = MinMaxAdaptative()
+        m = algo.move_select(board, CheckersBoard.WHITE)
+        self.assertIsNotNone(m)

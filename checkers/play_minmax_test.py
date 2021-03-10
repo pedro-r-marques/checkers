@@ -63,9 +63,8 @@ class TestMinMax(unittest.TestCase):
         board = CheckersBoard()
         board.initialize(state)
         algorithm = MinMaxPlayer(max_depth=6)
-        move_minmax.cache_clear()
-        algorithm.move_select(board, CheckersBoard.WHITE)
-        print(move_minmax.cache_info())
+        m = algorithm.move_select(board, CheckersBoard.WHITE)
+        self.assertIsNotNone(m)
 
     def test_horizon(self):
         state = [
@@ -81,9 +80,8 @@ class TestMinMax(unittest.TestCase):
         board = CheckersBoard()
         board.initialize(state)
         algo = MinMaxPlayer(max_depth=6)
-        move_minmax.cache_clear()
         m = algo.move_select(board, CheckersBoard.WHITE)
-        print(move_minmax.cache_info())
+        self.assertIsNotNone(m)
 
     def test_2kings(self):
         state = [
@@ -99,9 +97,8 @@ class TestMinMax(unittest.TestCase):
         board = CheckersBoard()
         board.initialize(state)
         algo = MinMaxPlayer(max_depth=4)
-        move_minmax.cache_clear()
         m = algo.move_select(board, CheckersBoard.WHITE)
-        print(move_minmax.cache_info())
+        self.assertIsNotNone(m)
 
 
 if __name__ == '__main__':

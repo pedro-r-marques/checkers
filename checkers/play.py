@@ -59,7 +59,7 @@ def main():
     args = parser.parse_args()
 
     b_player = MinMaxPlayer(max_depth=4, select_best=True)
-    w_player = MinMaxAdaptative()
+    w_player = MinMaxAdaptative(max_depth=6)
 
     logger = SummaryLogger()
     counts = [0, 0]

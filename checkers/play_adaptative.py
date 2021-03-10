@@ -1,5 +1,4 @@
 import heapq
-from typing import Any, List, Tuple
 import random
 
 from .checkers_lib import PyCheckersBoard as CheckersBoard
@@ -122,7 +121,8 @@ class MinMaxAdaptative(object):
     def __init__(self, max_depth=6):
         self.n_turns = max_depth - 2
         assert self.n_turns > 0
-        self.node_limit = 4 * 1024
+        self.soft_node_limit = 4 * 1024
+        self.hard_node_limit = 16 * 1024
 
     def move_select(self, board, player, turn=None):
         stats = {
@@ -133,22 +133,25 @@ class MinMaxAdaptative(object):
 
         counts = board.piece_count()
         if any(x > 0 for x in counts[2:]):
-            threshold = 200
+            threshold = 300
         else:
-            threshold = 20
+            threshold = 30
 
         pq = tree_build(None, board, player, stats)
         if not pq:
             return None
         pq = tree_expand(None, pq, player, stats)
 
+        limits = [self.hard_node_limit] * self.n_turns
+        for i in range(3, self.n_turns):
+            limits[i] = self.soft_node_limit
+
         for i in range(self.n_turns):
+            if stats['nodes'] >= limits[i]:
+                break
             cache = {}
             pq = tree_updater(cache, pq, leaf_update, i + 1, stats,
                               threshold=threshold)
-            if i >= 2 and stats['nodes'] >= self.node_limit:
-                # print(turn, i, stats)
-                break
 
         moves = ([x.move for x in pq if x.priority == pq[0].priority])
         return random.choice(moves)
