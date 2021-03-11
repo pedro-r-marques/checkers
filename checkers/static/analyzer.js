@@ -96,6 +96,17 @@ function show_board(response) {
     el_move_descr.innerHTML = move_repr(move_info);
 }
 
+function show_trace(trace_path) {
+    var repr = "";
+    trace_path.forEach(entry => {
+        if (repr.length) {
+            repr += ", ";
+        }
+        repr += move_repr(entry[0])
+    });
+    return repr;
+}
+
 function show_debug(move_list) {
     let xtable = document.querySelector("#table-moves");
     let prev_tbody = xtable.querySelector("tbody");
@@ -105,10 +116,13 @@ function show_debug(move_list) {
         let tr = tbody.insertRow();
         let td = tr.insertCell();
         td.innerHTML = move_repr(move_entry['move']);
+        td.style.whiteSpace = "nowrap";
         td = tr.insertCell();
         td.innerHTML = move_entry['score'].toString();
         td = tr.insertCell();
         td.innerHTML = move_entry['weight'].toString();
+        td = tr.insertCell();
+        td.innerHTML = show_trace(move_entry['trace']);
     });
     xtable.replaceChild(tbody, prev_tbody);
 }

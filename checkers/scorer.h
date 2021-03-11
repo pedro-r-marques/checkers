@@ -15,7 +15,7 @@ class Scorer {
         int piece_value;
         int king_value;
         int piece_1away_value;
-        int piece_2away_value;
+        int piece_naway_value;
     };
     Scorer();
     Scorer(const Params&);

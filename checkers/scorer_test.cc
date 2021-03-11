@@ -161,6 +161,29 @@ int test_promotion_1step_king() {
     return 0;
 }
 
+int test_promotion_1step_protected() {
+    // clang-format off
+    CheckersBoard board({
+        0, 0, 0, 0, 0, 0, 0, 1,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 1, 0, 0, 2,
+        0, 0, 0, 1, 0, 0, 0, 0,
+        2, 0, 2, 0, 0, 0, 0, 0
+    });
+    // clang-format on
+    Scorer scorer(Scorer::Params{.piece_1away_value = 50});
+
+    int score = scorer.score(board, CheckersBoard::WHITE);
+    if (score != 50) {
+        cout << "Expected 50, got " << score << endl;
+        return -1;
+    }
+    return 0;
+}
+
 int test_promotion_2step_ok() {
     // clang-format off
     CheckersBoard board({
@@ -174,10 +197,11 @@ int test_promotion_2step_ok() {
         0, 0, 0, 0, 0, 0, 0, 0
     });
     // clang-format on
-    Scorer scorer(Scorer::Params{.piece_2away_value = 25});
+    Scorer scorer(Scorer::Params{.piece_naway_value = 25});
 
     int score = scorer.score(board, CheckersBoard::WHITE);
     if (score != 25) {
+        cout << "test_promotion_2step_ok" << endl;
         cout << "Expected 25, got " << score << endl;
         return -1;
     }
@@ -197,10 +221,11 @@ int test_promotion_2step_ok_border() {
         0, 0, 0, 0, 0, 0, 0, 0
     });
     // clang-format on
-    Scorer scorer(Scorer::Params{.piece_2away_value = 25});
+    Scorer scorer(Scorer::Params{.piece_naway_value = 25});
 
     int score = scorer.score(board, CheckersBoard::WHITE);
     if (score != -25) {
+        cout << "test_promotion_2step_ok_border" << endl;
         cout << "Expected -25, got " << score << endl;
         return -1;
     }
@@ -220,10 +245,11 @@ int test_promotion_2step_blocked1() {
         0, 0, 0, 0, 0, 0, 0, 2
     });
     // clang-format on
-    Scorer scorer(Scorer::Params{.piece_2away_value = 25});
+    Scorer scorer(Scorer::Params{.piece_naway_value = 25});
 
     int score = scorer.score(board, CheckersBoard::WHITE);
     if (score != 25) {
+        cout << "test_promotion_2step_blocked1" << endl;
         cout << "Expected 25, got " << score << endl;
         return -1;
     }
@@ -243,10 +269,11 @@ int test_promotion_2step_blocked2() {
         0, 0, 0, 2, 0, 0, 0, 2
     });
     // clang-format on
-    Scorer scorer(Scorer::Params{.piece_2away_value = 25});
+    Scorer scorer(Scorer::Params{.piece_naway_value = 25});
 
     int score = scorer.score(board, CheckersBoard::WHITE);
     if (score != 0) {
+        cout << "test_promotion_2step_blocked2" << endl;
         cout << "Expected 0, got " << score << endl;
         return -1;
     }
@@ -270,6 +297,7 @@ int test_promotion_2step_blocked3() {
 
     int score = scorer.score(board, CheckersBoard::WHITE);
     if (score != 0) {
+        cout << "test_promotion_2step_blocked3" << endl;
         cout << "Expected 0, got " << score << endl;
         return -1;
     }
@@ -286,6 +314,7 @@ int scorer_test() {
             test_promotion_1step_ok_border,
             test_promotion_1step_ok_black,
             test_promotion_1step_blocked,
+            test_promotion_1step_protected,
             test_promotion_2step_ok,
             test_promotion_2step_ok_border,
             test_promotion_2step_blocked1,

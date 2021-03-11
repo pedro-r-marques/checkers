@@ -44,7 +44,7 @@
 
         div.container {
             display: grid;
-            grid-template-columns: 2fr 2fr;
+            grid-template-columns: 1fr 2fr;
         }
         div.col-left {
             grid-column-start: 1;
@@ -74,6 +74,9 @@
             margin-top: 2em;
             margin-left: 2em;
             margin-right: 5em;
+        }
+        .debug tr {
+            padding: 20px;
         }
     </style>
 </head>
@@ -214,6 +217,7 @@
                             <th>Move</th>
                             <th>Score</th>
                             <th>Weight</th>
+                            <th>Path</th>
                         </tr>
                     </thead>
                     <tbody>

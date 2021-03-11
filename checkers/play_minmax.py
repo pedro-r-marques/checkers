@@ -12,11 +12,9 @@ from .play_random import move_select as random_select
 SCORE_MIN = -1000
 SCORE_MAX = 1000
 
-scorer = PyScorer()
-
 
 @functools.lru_cache(maxsize=32*1024)
-def move_minmax(board, player, depth):
+def move_minmax(scorer, board, player, depth):
     moves = board.valid_moves(player)
     if not moves:
         return [None], [scorer.score(board, player)], 0
@@ -30,7 +28,8 @@ def move_minmax(board, player, depth):
         nboard = CheckersBoard.copy(board)
         nboard.move(move)
         if depth > 0:
-            _, opp_scores, ix = move_minmax(nboard, opponent, depth - 1)
+            _, opp_scores, ix = move_minmax(
+                scorer, nboard, opponent, depth - 1)
             score = -opp_scores[ix]
         else:
             score = scorer.score(nboard, player)
@@ -42,7 +41,7 @@ def move_minmax(board, player, depth):
     return moves, scores, best_index
 
 
-def move_minmax_trace(board, player, depth):
+def move_minmax_trace(scorer, board, player, depth):
     moves = board.valid_moves(player)
     if not moves:
         return [None], [scorer.score(board, player)], [[]], 0
@@ -58,7 +57,7 @@ def move_minmax_trace(board, player, depth):
         nboard.move(move)
         if depth > 0:
             opp_moves, opp_scores, opp_traces, ix = move_minmax_trace(
-                nboard, opponent, depth - 1)
+                scorer, nboard, opponent, depth - 1)
             traces[i] = [(opp_moves[ix], opp_scores[ix])] + opp_traces[ix]
             score = -opp_scores[ix]
         else:
@@ -74,9 +73,10 @@ def move_minmax_trace(board, player, depth):
 
 
 class MinMaxPlayer(object):
-    def __init__(self, max_depth=4, select_best=False):
+    def __init__(self, max_depth=4, select_best=False, scorer_params=None):
         self.max_depth = max_depth
         self.select_best = select_best
+        self.scorer = PyScorer(scorer_params)
 
     def make_weights(self, scores):
         if self.select_best:
@@ -86,7 +86,7 @@ class MinMaxPlayer(object):
 
     def move_info(self, board, player, turn):
         moves, scores, traces, _ = move_minmax_trace(
-            board, player, self.max_depth)
+            self.scorer, board, player, self.max_depth)
         weights = self.make_weights(scores)
         result = []
         for move, score, trace, weight in zip(moves, scores, traces, weights):
@@ -97,7 +97,8 @@ class MinMaxPlayer(object):
     def move_select(self, board, player, turn=None):
         if turn is not None and turn == 0:
             return random_select(board, player, turn)
-        moves, scores, _ = move_minmax(board, player, self.max_depth)
+        moves, scores, _ = move_minmax(
+            self.scorer, board, player, self.max_depth)
         if not moves:
             return None
         weights = self.make_weights(scores)
