@@ -30,11 +30,11 @@ jobs:
       - name: Compiler
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++-8 make
-          g++ --version
+          sudo apt-get install -y gcc-8 g++-8 make
+          g++-8 --version
       - name: Test c++ code
         run: |
-          make
+          CXX=g++-8 make
           ./build/checkers_test
       - name: Python packages
         run: |
