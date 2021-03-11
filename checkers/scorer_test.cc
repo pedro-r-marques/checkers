@@ -59,7 +59,8 @@ int test_promotion_1step_ok() {
         0, 0, 0, 0, 0, 0, 0, 0
     });
     // clang-format on
-    Scorer scorer(Scorer::Params{.piece_1away_value = 50});
+    Scorer scorer(Scorer::Params{
+            .piece_value = 0, .king_value = 0, .piece_1away_value = 50});
 
     int score = scorer.score(board, CheckersBoard::WHITE);
     if (score != 50) {
