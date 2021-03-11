@@ -14,11 +14,12 @@ SCORE_MAX = 1000
 
 scorer = PyScorer()
 
+
 @functools.lru_cache(maxsize=32*1024)
 def move_minmax(board, player, depth):
     moves = board.valid_moves(player)
     if not moves:
-        return [], [0], 0
+        return [None], [scorer.score(board, player)], 0
     opponent = CheckersBoard.WHITE if player == CheckersBoard.BLACK \
         else CheckersBoard.BLACK
 
@@ -28,19 +29,48 @@ def move_minmax(board, player, depth):
     for i, move in enumerate(moves):
         nboard = CheckersBoard.copy(board)
         nboard.move(move)
-        score = scorer.score(nboard, player)
         if depth > 0:
             _, opp_scores, ix = move_minmax(nboard, opponent, depth - 1)
-            opp_score = opp_scores[ix]
+            score = -opp_scores[ix]
         else:
-            opp_score = 0
-        score = score - opp_score
+            score = scorer.score(nboard, player)
         scores.append(score)
         if score > best_score:
             best_score = score
             best_index = i
 
     return moves, scores, best_index
+
+
+def move_minmax_trace(board, player, depth):
+    moves = board.valid_moves(player)
+    if not moves:
+        return [None], [scorer.score(board, player)], [[]], 0
+    opponent = CheckersBoard.WHITE if player == CheckersBoard.BLACK \
+        else CheckersBoard.BLACK
+
+    scores = []
+    traces = [[] for _ in range(len(moves))]
+    best_score = SCORE_MIN
+    best_index = 0
+    for i, move in enumerate(moves):
+        nboard = CheckersBoard.copy(board)
+        nboard.move(move)
+        if depth > 0:
+            opp_moves, opp_scores, opp_traces, ix = move_minmax_trace(
+                nboard, opponent, depth - 1)
+            traces[i] = [(opp_moves[ix], opp_scores[ix])] + opp_traces[ix]
+            score = -opp_scores[ix]
+        else:
+            score = scorer.score(nboard, player)
+
+        scores.append(score)
+
+        if score > best_score:
+            best_score = score
+            best_index = i
+
+    return moves, scores, traces, best_index
 
 
 class MinMaxPlayer(object):
@@ -55,12 +85,13 @@ class MinMaxPlayer(object):
         return [x - min(scores) + 1 for x in scores]
 
     def move_info(self, board, player, turn):
-        moves, scores, _ = move_minmax(
+        moves, scores, traces, _ = move_minmax_trace(
             board, player, self.max_depth)
         weights = self.make_weights(scores)
         result = []
-        for move, score, weight in zip(moves, scores, weights):
-            result.append({'move': move, 'score': score, 'weight': weight})
+        for move, score, trace, weight in zip(moves, scores, traces, weights):
+            result.append({'move': move, 'score': score,
+                           'trace': trace, 'weight': weight})
         return result
 
     def move_select(self, board, player, turn=None):

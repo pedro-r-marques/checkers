@@ -51,6 +51,64 @@ class TestMinMax(unittest.TestCase):
         m = algorithm.move_select(board, CheckersBoard.WHITE)
         self.assertIsNotNone(m)
 
+    def test_delay_move(self):
+        state = [
+            [0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 2, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [2, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [2, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 2, 0, 0, 0],
+        ]
+        board = CheckersBoard()
+        board.initialize(state)
+        algorithm = MinMaxPlayer()
+        result = algorithm.move_info(board, CheckersBoard.WHITE, None)
+        self.assertTrue(result)
+
+        max_score = result[0]['score']
+        for r in result[1:]:
+            if r['score'] > max_score:
+                max_score = r['score']
+        best = []
+        for r in result:
+            if r['score'] != max_score:
+                continue
+            best.append(r['move'])
+
+        self.assertNotIn([((1, 0), (2, 1))], best)
+
+    def test_at_end(self):
+        state = [
+            [0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 3, 0, 0, 0, 0, 0, 0],
+            [0, 0, 2, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 2, 0, 0, 0, 0, 0],
+        ]
+        board = CheckersBoard()
+        board.initialize(state)
+        algorithm = MinMaxPlayer()
+        result = algorithm.move_info(board, CheckersBoard.WHITE, None)
+        self.assertTrue(result)
+
+        max_score = result[0]['score']
+        for r in result[1:]:
+            if r['score'] > max_score:
+                max_score = r['score']
+        best = []
+        for r in result:
+            if r['score'] != max_score:
+                continue
+            best.append(r['move'])
+
+        self.assertNotIn([((4, 1), (6, 3))], best)
+
 
 if __name__ == '__main__':
     unittest.main()
