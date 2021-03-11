@@ -30,7 +30,7 @@ jobs:
       - name: Compiler
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++ make
+          sudo apt-get install -y g++-8 make
       - name: Test c++ code
         run: |
           make
