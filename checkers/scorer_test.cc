@@ -197,7 +197,7 @@ int test_promotion_2step_ok() {
         0, 0, 0, 0, 0, 0, 0, 0
     });
     // clang-format on
-    Scorer scorer(Scorer::Params{.piece_2away_value = 25});
+    Scorer scorer(Scorer::Params{.piece_naway_value = 25});
 
     int score = scorer.score(board, CheckersBoard::WHITE);
     if (score != 25) {
@@ -221,7 +221,7 @@ int test_promotion_2step_ok_border() {
         0, 0, 0, 0, 0, 0, 0, 0
     });
     // clang-format on
-    Scorer scorer(Scorer::Params{.piece_2away_value = 25});
+    Scorer scorer(Scorer::Params{.piece_naway_value = 25});
 
     int score = scorer.score(board, CheckersBoard::WHITE);
     if (score != -25) {
@@ -245,7 +245,7 @@ int test_promotion_2step_blocked1() {
         0, 0, 0, 0, 0, 0, 0, 2
     });
     // clang-format on
-    Scorer scorer(Scorer::Params{.piece_2away_value = 25});
+    Scorer scorer(Scorer::Params{.piece_naway_value = 25});
 
     int score = scorer.score(board, CheckersBoard::WHITE);
     if (score != 25) {
@@ -269,7 +269,7 @@ int test_promotion_2step_blocked2() {
         0, 0, 0, 2, 0, 0, 0, 2
     });
     // clang-format on
-    Scorer scorer(Scorer::Params{.piece_2away_value = 25});
+    Scorer scorer(Scorer::Params{.piece_naway_value = 25});
 
     int score = scorer.score(board, CheckersBoard::WHITE);
     if (score != 0) {

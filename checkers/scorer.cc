@@ -134,7 +134,7 @@ const Scorer::Params Scorer::default_params = {
         .piece_value = 10,
         .king_value = 100,
         .piece_1away_value = 50,
-        .piece_2away_value = 25,
+        .piece_naway_value = 25,
 };
 
 Scorer::Scorer() : params_(default_params) {}
@@ -212,8 +212,8 @@ int Scorer::score(const CheckersBoard& board, Player player) {
                       piece_counts[CheckersBoard::BLACK_PAWN - 1];
     score += factor * king_delta * params_.king_value;
     score += factor * piece_delta * params_.piece_value;
-    score += factor * w_path_count * params_.piece_2away_value;
-    score -= factor * b_path_count * params_.piece_2away_value;
+    score += factor * w_path_count * params_.piece_naway_value;
+    score -= factor * b_path_count * params_.piece_naway_value;
 
     return score;
 }
