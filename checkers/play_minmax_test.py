@@ -1,8 +1,9 @@
 import random
 import unittest
 
-from .checkers_lib import PyCheckersBoard as CheckersBoard
-from .play_minmax import board_score, move_select
+from .py_checkers import PyCheckersBoard as CheckersBoard
+from .play_minmax import MinMaxPlayer
+from .py_scorer import PyScorer
 
 
 class TestMinMax(unittest.TestCase):
@@ -18,16 +19,19 @@ class TestMinMax(unittest.TestCase):
 
         board = CheckersBoard()
         board.initialize(state)
-        m = move_select(board, CheckersBoard.BLACK)
+        algorithm = MinMaxPlayer()
+        m = algorithm.move_select(board, CheckersBoard.BLACK)
         self.assertEqual(m, [(4, 3), (2, 5)])
 
     def test_init_board(self):
         board = CheckersBoard()
-        self.assertEqual(board_score(board, CheckersBoard.WHITE),
-                         board_score(board, CheckersBoard.BLACK))
+        scorer = PyScorer()
+        self.assertEqual(scorer.score(board, CheckersBoard.WHITE),
+                         scorer.score(board, CheckersBoard.BLACK))
         board.move([(5, 0), (4, 1)])
         board.move([(2, 7), (3, 6)])
-        m = move_select(board, CheckersBoard.BLACK)
+        algorithm = MinMaxPlayer()
+        m = algorithm.move_select(board, CheckersBoard.BLACK)
         self.assertTrue(m is not None)
 
     def test_weights(self):
@@ -43,8 +47,67 @@ class TestMinMax(unittest.TestCase):
         ]
         board = CheckersBoard()
         board.initialize(state)
-        m = move_select(board, CheckersBoard.WHITE)
+        algorithm = MinMaxPlayer()
+        m = algorithm.move_select(board, CheckersBoard.WHITE)
         self.assertIsNotNone(m)
+
+    def test_delay_move(self):
+        state = [
+            [0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 2, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [2, 0, 1, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [2, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 2, 0, 0, 0],
+        ]
+        board = CheckersBoard()
+        board.initialize(state)
+        algorithm = MinMaxPlayer()
+        result = algorithm.move_info(board, CheckersBoard.WHITE, None)
+        self.assertTrue(result)
+
+        max_score = result[0]['score']
+        for r in result[1:]:
+            if r['score'] > max_score:
+                max_score = r['score']
+        best = []
+        for r in result:
+            if r['score'] != max_score:
+                continue
+            best.append(r['move'])
+
+        self.assertNotIn([((1, 0), (2, 1))], best)
+
+    def test_at_end(self):
+        state = [
+            [0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0, 0, 1],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 3, 0, 0, 0, 0, 0, 0],
+            [0, 0, 2, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 2, 0, 0, 0, 0, 0],
+        ]
+        board = CheckersBoard()
+        board.initialize(state)
+        algorithm = MinMaxPlayer()
+        result = algorithm.move_info(board, CheckersBoard.WHITE, None)
+        self.assertTrue(result)
+
+        max_score = result[0]['score']
+        for r in result[1:]:
+            if r['score'] > max_score:
+                max_score = r['score']
+        best = []
+        for r in result:
+            if r['score'] != max_score:
+                continue
+            best.append(r['move'])
+
+        self.assertNotIn([((4, 1), (6, 3))], best)
 
 
 if __name__ == '__main__':

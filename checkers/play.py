@@ -1,31 +1,28 @@
 import argparse
-import collections
-import hashlib
 import random
 
 import tqdm
 
-from .checkers_lib import PyCheckersBoard as CheckersBoard
-from .play_random import move_select as play_random
-from .play_minmax import move_select as play_minmax
+from .py_checkers import PyCheckersBoard as CheckersBoard
+from .play_minmax import MinMaxPlayer
 from .logger import GameLogger, SummaryLogger
 
 
-def play_game(fn_a, fn_b):
+def play_game(w_player_fn, b_player_fn):
     board = CheckersBoard()
     turn = 0
 
     logger = GameLogger()
     winner = 0
     while turn < 128:
-        m1 = fn_a(board, CheckersBoard.BLACK, turn)
+        m1 = b_player_fn(board, CheckersBoard.BLACK, turn)
         logger.log(board, turn, CheckersBoard.BLACK, m1)
         if m1 is not None:
             board.move(m1)
         if board.count()[0] == 0:
             winner = CheckersBoard.BLACK
             break
-        m2 = fn_b(board, CheckersBoard.WHITE, turn)
+        m2 = w_player_fn(board, CheckersBoard.WHITE, turn)
         logger.log(board, turn, CheckersBoard.WHITE, m2)
         if m2 is not None:
             board.move(m2)
@@ -50,10 +47,14 @@ def main():
         help="Threshold for log saving.")
     args = parser.parse_args()
 
+    w_player = MinMaxPlayer()
+    b_player = MinMaxPlayer()
+
     logger = SummaryLogger()
     counts = [0, 0]
     for _ in tqdm.tqdm(range(args.count)):
-        w, game_log, turns = play_game(play_minmax, play_minmax)
+        w, game_log, turns = play_game(
+            w_player.move_select, b_player.move_select)
         if w == 0:
             continue
         logger.add(game_log, w, turns)
