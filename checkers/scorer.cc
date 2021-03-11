@@ -34,9 +34,27 @@ bool is_opposing_player_king(CheckersBoard::Piece piece,
     return false;
 }
 
+bool has_adjacent_piece(const CheckersBoard& board,
+                        CheckersBoard::Position start,
+                        CheckersBoard::Position pos, bool vdir, bool hdir) {
+    CheckersBoard::Position npos;
+    bool ok;
+    tie(npos, ok) = position_advance(pos, vdir, hdir);
+    if (!ok) {
+        return false;
+    }
+    if (npos == start) {
+        return false;
+    }
+    if (board.get_position(npos) != 0) {
+        return true;
+    }
+    return board.get_position(npos) != 0;
+}
+
 std::vector<CheckersBoard::Position> piece_has_path_forward(
         const CheckersBoard& board, CheckersBoard::Player player,
-        CheckersBoard::Position pos, bool vdir) {
+        CheckersBoard::Position start, CheckersBoard::Position pos, bool vdir) {
     std::vector<CheckersBoard::Position> positions;
     positions.reserve(2);
     for (int i = 0; i < 2; i++) {
@@ -51,7 +69,8 @@ std::vector<CheckersBoard::Position> piece_has_path_forward(
         if (npiece == 0) {
             positions.push_back(npos);
         }
-        if (is_opposing_player_piece(npiece, player)) {
+        if (is_opposing_player_piece(npiece, player) &&
+            !has_adjacent_piece(board, start, pos, !vdir, !hdir)) {
             return {};
         }
     }
@@ -66,7 +85,8 @@ bool piece_has_path_to_promotion(const CheckersBoard& board,
     for (int i = 0; i < distance; i++) {
         std::set<CheckersBoard::Position> npos_set;
         for (auto pos : positions) {
-            auto fwd_path = piece_has_path_forward(board, player, pos, vdir);
+            auto fwd_path =
+                    piece_has_path_forward(board, player, start, pos, vdir);
             std::copy(fwd_path.begin(), fwd_path.end(),
                       std::inserter(npos_set, npos_set.begin()));
         }
@@ -83,7 +103,7 @@ bool piece_is_1step_from_promotion(const CheckersBoard& board,
     // Returns true there is a free path to promotion.
     CheckersBoard::Player player = piece_to_player(board.get_position(pos));
 
-    auto positions = piece_has_path_forward(board, player, pos, vdir);
+    auto positions = piece_has_path_forward(board, player, pos, pos, vdir);
     if (positions.empty()) {
         return false;
     }
