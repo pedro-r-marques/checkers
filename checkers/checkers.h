@@ -57,6 +57,10 @@ class CheckersBoard {
     // returns a pointer to an  64 byte array with the board values.
     const char *data() const { return board_.data(); }
 
+    const std::array<char, BOARD_SIZE * BOARD_SIZE> &board() const {
+        return board_;
+    }
+
     void move(const Move &move);
 
    private:
@@ -77,5 +81,11 @@ class CheckersBoard {
 
     std::array<char, BOARD_SIZE * BOARD_SIZE> board_;
 };
+
+std::pair<CheckersBoard::Position, bool> position_advance(
+        CheckersBoard::Position pos, bool vdir, bool hdir);
+bool is_player_piece(CheckersBoard::Piece piece, CheckersBoard::Player player);
+bool is_opposing_player_piece(CheckersBoard::Piece piece,
+                              CheckersBoard::Player player);
 
 #endif  // __CHECKERS_CHECKERS_H__

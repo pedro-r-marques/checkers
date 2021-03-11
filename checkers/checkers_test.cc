@@ -1,8 +1,10 @@
-#include <iostream>
-
 #include "checkers.h"
 
+#include <iostream>
+
 using namespace std;
+
+extern int scorer_test();
 
 namespace {
 int test_pawn_moves() {
@@ -196,6 +198,11 @@ int main(int argc, char* argv[]) {
     }
 
     result = test_play_move_sequence();
+    if (result != 0) {
+        return result;
+    }
+
+    result = scorer_test();
     if (result != 0) {
         return result;
     }

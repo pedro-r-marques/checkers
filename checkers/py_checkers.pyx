@@ -12,8 +12,6 @@ cdef class PyCheckersBoard:
 
     BOARD_SIZE = 8
 
-    cdef CheckersBoard c_impl
-
     def __hash__(self):
         return self.c_impl.hash()
     

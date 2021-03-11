@@ -1,8 +1,9 @@
 import random
 import unittest
 
-from .checkers_lib import PyCheckersBoard as CheckersBoard
-from .play_minmax import board_score, MinMaxPlayer
+from .py_checkers import PyCheckersBoard as CheckersBoard
+from .play_minmax import MinMaxPlayer
+from .py_scorer import PyScorer
 
 
 class TestMinMax(unittest.TestCase):
@@ -24,8 +25,9 @@ class TestMinMax(unittest.TestCase):
 
     def test_init_board(self):
         board = CheckersBoard()
-        self.assertEqual(board_score(board, CheckersBoard.WHITE),
-                         board_score(board, CheckersBoard.BLACK))
+        scorer = PyScorer()
+        self.assertEqual(scorer.score(board, CheckersBoard.WHITE),
+                         scorer.score(board, CheckersBoard.BLACK))
         board.move([(5, 0), (4, 1)])
         board.move([(2, 7), (3, 6)])
         algorithm = MinMaxPlayer()

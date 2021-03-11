@@ -7,7 +7,7 @@ import flask
 import pickle
 import os
 
-from .checkers_lib import PyCheckersBoard as CheckersBoard
+from .py_checkers import PyCheckersBoard as CheckersBoard
 from .play_minmax import MinMaxPlayer
 
 source_dir = os.path.dirname(os.path.abspath(__file__))

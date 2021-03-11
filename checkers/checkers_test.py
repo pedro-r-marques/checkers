@@ -1,7 +1,7 @@
 import functools
 import unittest
 
-from checkers.checkers_lib import PyCheckersBoard as CheckersBoard
+from checkers.py_checkers import PyCheckersBoard as CheckersBoard
 
 
 class CheckersBoardTest(unittest.TestCase):

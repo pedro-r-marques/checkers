@@ -1,51 +1,18 @@
+# distutils: language = c++
+
 """
 """
 import functools
 import random
 
-from .checkers_lib import PyCheckersBoard as CheckersBoard
+from .py_checkers import PyCheckersBoard as CheckersBoard
+from .py_scorer import PyScorer
 from .play_random import move_select as random_select
 
 SCORE_MIN = -1000
 SCORE_MAX = 1000
 
-
-def board_score(board, player):
-    counts = board.piece_count()
-    if player == CheckersBoard.WHITE:
-        player_count = (counts[CheckersBoard.WHITE - 1] +
-                        counts[CheckersBoard.WHITE_KING - 1])
-        opponent_count = (counts[CheckersBoard.BLACK - 1] +
-                          counts[CheckersBoard.BLACK_KING - 1])
-    elif player == CheckersBoard.BLACK:
-        player_count = (counts[CheckersBoard.BLACK - 1] +
-                        counts[CheckersBoard.BLACK_KING - 1])
-        opponent_count = (counts[CheckersBoard.WHITE - 1] +
-                          counts[CheckersBoard.WHITE_KING - 1])
-    else:
-        raise ValueError('Invalid player id')
-
-    if player_count == 0:
-        return SCORE_MIN
-    if opponent_count == 0:
-        return SCORE_MAX
-
-    score = 0
-
-    king_delta = (counts[CheckersBoard.WHITE_KING - 1] -
-                  counts[CheckersBoard.BLACK_KING - 1])
-    piece_delta = (counts[CheckersBoard.WHITE - 1] -
-                   counts[CheckersBoard.BLACK - 1])
-
-    if player == CheckersBoard.BLACK:
-        king_delta = -king_delta
-        piece_delta = -piece_delta
-
-    score += king_delta * 100
-    score += piece_delta * 10
-
-    return score
-
+scorer = PyScorer()
 
 @functools.lru_cache(maxsize=32*1024)
 def move_minmax(board, player, depth):
@@ -61,7 +28,7 @@ def move_minmax(board, player, depth):
     for i, move in enumerate(moves):
         nboard = CheckersBoard.copy(board)
         nboard.move(move)
-        score = board_score(nboard, player)
+        score = scorer.score(nboard, player)
         if depth > 0:
             _, opp_scores, ix = move_minmax(nboard, opponent, depth - 1)
             opp_score = opp_scores[ix]

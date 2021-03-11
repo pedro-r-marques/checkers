@@ -17,6 +17,10 @@ class GameLogger():
         with open(filename, 'wb') as fp:
             pickle.dump(self.history, fp)
 
+    def load(self, filename):
+        with open(filename, 'rb') as fp:
+            self.history = pickle.load(fp)
+
 
 class SummaryLogger():
     def __init__(self):

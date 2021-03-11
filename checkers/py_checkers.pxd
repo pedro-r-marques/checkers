@@ -50,3 +50,5 @@ cdef extern from "checkers.h":
 
         void move(const Move&)
 
+cdef class PyCheckersBoard:
+    cdef CheckersBoard c_impl

@@ -3,7 +3,7 @@ import random
 
 import tqdm
 
-from .checkers_lib import PyCheckersBoard as CheckersBoard
+from .py_checkers import PyCheckersBoard as CheckersBoard
 from .play_minmax import MinMaxPlayer
 from .logger import GameLogger, SummaryLogger
 

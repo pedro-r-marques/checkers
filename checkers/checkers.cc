@@ -6,8 +6,6 @@
 
 using namespace std;
 
-namespace {
-
 pair<CheckersBoard::Position, bool> position_advance(
         CheckersBoard::Position pos, bool vdir, bool hdir) {
     int row = pos.first + (vdir ? 1 : -1);
@@ -35,6 +33,8 @@ bool is_opposing_player_piece(CheckersBoard::Piece piece,
                               CheckersBoard::Player player) {
     return piece != 0 && !is_player_piece(piece, player);
 }
+
+namespace {
 
 ostream &operator<<(ostream &os, const CheckersBoard::Position &pos) {
     os << "[" << pos.first << ", " << pos.second << "]";
