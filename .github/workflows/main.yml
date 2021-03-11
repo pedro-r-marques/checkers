@@ -22,36 +22,24 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    - uses: actions/checkout@v1
-    - uses: actions/setup-python@v2
-      with:
-        python-version: 3.8
+      - uses: actions/checkout@v1
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
     
-    - name: Compiler
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y g++ make
-    - name: Test c++ code
-      run: |
-        make
-        ./build/checkers_test
-    - name: Python packages
-      run: |
-        pip install -r requirements.txt
-        pip install pytest flake8
-    - name: Build c++ code
-      run: python -m setup build_ext -i
-    - name: Test
-      run: python -m pytest
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
-
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Compiler
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          sudo apt-get update
+          sudo apt-get install -y g++ make
+      - name: Test c++ code
+        run: |
+          make
+          ./build/checkers_test
+      - name: Python packages
+        run: |
+          pip install -r requirements.txt
+          pip install pytest flake8
+      - name: Build c++ code
+        run: python -m setup build_ext -i
+      - name: Test
+        run: python -m pytest
