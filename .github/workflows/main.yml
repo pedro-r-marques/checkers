@@ -25,7 +25,7 @@ jobs:
       - uses: actions/checkout@v1
       - uses: actions/setup-python@v2
         with:
-          python-version: 3.8
+          python-version: 3.9
     
       - name: Compiler
         run: |
@@ -44,3 +44,5 @@ jobs:
         run: python -m setup build_ext -i
       - name: Test
         run: python -m pytest
+      - name: Lint
+        run: flake8 checkers

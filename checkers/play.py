@@ -1,5 +1,7 @@
 import argparse
+import os
 import random
+import tempfile
 
 import tqdm
 
@@ -10,28 +12,32 @@ from .logger import GameLogger, SummaryLogger
 
 def play_game(w_player_fn, b_player_fn):
     board = CheckersBoard()
-    turn = 0
 
     logger = GameLogger()
     winner = 0
-    while turn < 128:
-        m1 = b_player_fn(board, CheckersBoard.BLACK, turn)
-        logger.log(board, turn, CheckersBoard.BLACK, m1)
-        if m1 is not None:
-            board.move(m1)
-        if board.count()[0] == 0:
+
+    for turn in range(256):
+        if turn % 2 == 0:
+            player = CheckersBoard.BLACK
+            move_select_fn = b_player_fn
+        else:
+            player = CheckersBoard.WHITE
+            move_select_fn = w_player_fn
+
+        mv = move_select_fn(board, player, turn)
+        logger.log(board, turn, player, mv)
+        if mv is not None:
+            board.move(mv)
+
+        counts = board.count()
+        if counts[0] == 0:
             winner = CheckersBoard.BLACK
             break
-        m2 = w_player_fn(board, CheckersBoard.WHITE, turn)
-        logger.log(board, turn, CheckersBoard.WHITE, m2)
-        if m2 is not None:
-            board.move(m2)
-        if board.count()[1] == 0:
+        if counts[1] == 0:
             winner = CheckersBoard.WHITE
             break
-        turn += 1
 
-    return winner, logger, turn
+    return winner, logger
 
 
 def main():
@@ -40,28 +46,36 @@ def main():
         '--count', type=int, default=10,
         help="Number of games to play")
     parser.add_argument(
-        '--save-log', action="store_true",
-        help="Save the summary of the played turns and outcomes")
+        '--log-dir', default="",
+        help="Directory to which to save the game logs")
     parser.add_argument(
-        '--save-threshold', type=int, default=10,
-        help="Threshold for log saving.")
+        '--summary', action='store_true',
+        help="Generate a summary from the moves")
+    parser.add_argument(
+        '--summary-threshold', type=int, default=10,
+        help="Threshold for log summary.")
     args = parser.parse_args()
+
+    if not args.log_dir:
+        args.log_dir = tempfile.mkdtemp()
+        print('Logging to', args.log_dir)
 
     w_player = MinMaxPlayer()
     b_player = MinMaxPlayer()
 
-    logger = SummaryLogger()
-    counts = [0, 0]
-    for _ in tqdm.tqdm(range(args.count)):
-        w, game_log, turns = play_game(
+    summary = SummaryLogger()
+    counts = [0, 0, 0]
+    for i in tqdm.tqdm(range(args.count)):
+        w, game_log = play_game(
             w_player.move_select, b_player.move_select)
-        if w == 0:
-            continue
-        logger.add(game_log, w, turns)
-        counts[w - 1] += 1
-    print('Wins', counts)
-    if args.save_log:
-        logger.save('play.log', args.save_threshold)
+        game_log.save(os.path.join(args.log_dir, f'{i}.dat'))
+        summary.add(game_log, w)
+        counts[w] += 1
+
+    print('Results', counts)
+    if args.summary:
+        summary.save(os.path.join(args.log_dir, 'summary.tsv'),
+                     args.summary_threshold)
 
 
 if __name__ == '__main__':

@@ -16,6 +16,7 @@ log_history = None
 
 algorithm = MinMaxPlayer()
 
+
 @app.route('/', methods=['GET'])
 def index():
     return flask.redirect("/static/analyzer.html", 303)
