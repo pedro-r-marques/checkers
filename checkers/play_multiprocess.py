@@ -9,12 +9,26 @@ import tqdm
 
 from .play import play_game
 from .play_minmax import MinMaxPlayer
+from .play_probability import StatsPlayer
+
+# Create the stats player once since it loads stats data into memory.
+gbl_stats_player = None
 
 
 def worker(log_dir, game_id):
-    algorithm = MinMaxPlayer()
+    global gbl_stats_player
+    if gbl_stats_player is None:
+        gbl_stats_player = StatsPlayer()
+
+    if game_id & 0x1 == 0:
+        w_player = MinMaxPlayer()
+        b_player = gbl_stats_player
+    else:
+        w_player = gbl_stats_player
+        b_player = MinMaxPlayer()
+
     tstamp = datetime.datetime.now()
-    w, game_log = play_game(algorithm.move_select, algorithm.move_select)
+    w, game_log = play_game(w_player.move_select, b_player.move_select)
     filename = tstamp.strftime("%Y%m%d%H%M%S%f") + ".dat"
     game_log.save(os.path.join(log_dir, filename))
     return w
