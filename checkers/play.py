@@ -7,6 +7,7 @@ import tqdm
 
 from .py_checkers import PyCheckersBoard as CheckersBoard
 from .play_minmax import MinMaxPlayer
+from .play_probability import StatsPlayer
 from .logger import GameLogger, SummaryLogger
 
 
@@ -61,7 +62,7 @@ def main():
         print('Logging to', args.log_dir)
 
     w_player = MinMaxPlayer()
-    b_player = MinMaxPlayer()
+    b_player = StatsPlayer()
 
     summary = SummaryLogger()
     counts = [0, 0, 0]

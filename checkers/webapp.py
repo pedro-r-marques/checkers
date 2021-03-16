@@ -9,6 +9,7 @@ import flask
 
 from .py_checkers import PyCheckersBoard as CheckersBoard
 from .play_minmax import MinMaxPlayer
+from .play_probability import StatsPlayer
 from .logger import GameLogger
 
 
@@ -34,7 +35,7 @@ app.secret_key = os.getenv("SECRET_KEY", "dev")
 
 global_sessions = cachetools.TTLCache(maxsize=1024, ttl=60*30)
 
-algorithm = MinMaxPlayer(select_best=True)
+algorithm = StatsPlayer(select_best=True)
 
 
 def get_session_state():

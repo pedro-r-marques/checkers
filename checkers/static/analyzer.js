@@ -2,6 +2,9 @@ var turn = 0;
 var turn_count = 0;
 
 function move_repr(move) {
+    if (move == null) {
+        return "None";
+    }
     let str = "";
     move.forEach(element => {
         if (str.length) {
@@ -107,6 +110,20 @@ function show_trace(trace_path) {
     return repr;
 }
 
+function show_probabilities(plist) {
+    if (plist == null) {
+        return "";
+    }
+    var repr = "[";
+    plist.forEach(pvalue => {
+        if (repr.length > 1) {
+            repr += ", "
+        }
+        repr += pvalue.toFixed(4);
+    })
+    return repr + "]";
+}
+
 function show_debug(move_list) {
     let xtable = document.querySelector("#table-moves");
     let prev_tbody = xtable.querySelector("tbody");
@@ -120,7 +137,13 @@ function show_debug(move_list) {
         td = tr.insertCell();
         td.innerHTML = move_entry['score'].toString();
         td = tr.insertCell();
-        td.innerHTML = move_entry['weight'].toString();
+        if ("probabilities" in move_entry) {
+            td.innerHTML = show_probabilities(move_entry['probabilities']);
+        }
+        td = tr.insertCell();
+        if ("pmf" in move_entry) {
+            td.innerHTML = move_entry['pmf'].toFixed(4);
+        }
         td = tr.insertCell();
         td.innerHTML = show_trace(move_entry['trace']);
     });

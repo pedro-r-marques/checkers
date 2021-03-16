@@ -41,8 +41,6 @@ def main():
         for result in tqdm.tqdm(
                 pool.imap_unordered(worker_fn, range(args.count))):
             w = result
-            if w == 0:
-                continue
             counts[w] += 1
 
     print('Results', counts)

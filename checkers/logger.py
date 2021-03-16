@@ -48,6 +48,7 @@ class GameLogger():
 class SummaryLogger():
     def __init__(self):
         self.data = {}
+        self.results = [0] * 3
 
     @classmethod
     def hash(cls, log_entry):
@@ -93,6 +94,7 @@ class SummaryLogger():
                 winner = CheckersBoard.WHITE
             if winner == 0 and len(log.history) < min_turns:
                 continue
+            self.results[winner] += 1
             self.add(log, winner)
 
     def save(self, filename, threshold):

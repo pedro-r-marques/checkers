@@ -94,6 +94,11 @@ class MinMaxPlayer(object):
                            'trace': trace, 'weight': weight})
         return result
 
+    def move_scores(self, board, player, turn=None):
+        moves, scores, _ = move_minmax(
+            self.scorer, board, player, self.max_depth)
+        return moves, scores
+
     def move_select(self, board, player, turn=None):
         if turn is not None and turn == 0:
             return random_select(board, player, turn)
