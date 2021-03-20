@@ -10,6 +10,7 @@ import flask
 from .py_checkers import PyCheckersBoard as CheckersBoard
 from .play_minmax import MinMaxPlayer
 from .play_probability import StatsPlayer
+from .play_scorer_model import TFScorerPlayer
 from .logger import GameLogger
 
 
@@ -35,7 +36,7 @@ app.secret_key = os.getenv("SECRET_KEY", "dev")
 
 global_sessions = cachetools.TTLCache(maxsize=1024, ttl=60*30)
 
-algorithm = StatsPlayer(select_best=True)
+algorithm = TFScorerPlayer()
 
 
 def get_session_state():

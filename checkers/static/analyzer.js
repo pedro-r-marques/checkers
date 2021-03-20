@@ -139,6 +139,8 @@ function show_debug(move_list) {
         td = tr.insertCell();
         if ("probabilities" in move_entry) {
             td.innerHTML = show_probabilities(move_entry['probabilities']);
+        } else if ("tf_score" in move_entry) {
+            td.innerHTML = move_entry["tf_score"].toString();
         }
         td = tr.insertCell();
         if ("pmf" in move_entry) {

@@ -8,6 +8,7 @@ import tqdm
 from .py_checkers import PyCheckersBoard as CheckersBoard
 from .play_minmax import MinMaxPlayer
 from .play_probability import StatsPlayer
+from .play_scorer_model import TFScorerPlayer
 from .logger import GameLogger, SummaryLogger
 
 
@@ -61,8 +62,8 @@ def main():
         args.log_dir = tempfile.mkdtemp()
         print('Logging to', args.log_dir)
 
-    w_player = MinMaxPlayer()
-    b_player = StatsPlayer()
+    w_player = TFScorerPlayer()
+    b_player = StatsPlayer(select_best=True)
 
     summary = SummaryLogger()
     counts = [0, 0, 0]
