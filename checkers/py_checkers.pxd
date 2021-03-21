@@ -31,7 +31,7 @@ cdef extern from "checkers.h":
         CheckersBoard(CheckersBoard&) except +
         CheckersBoard(const vector[int]&) except +
 
-        void initialize(const vector[int]&)
+        void initialize(const vector[int]&) except +
     
         bint operator==(CheckersBoard&, CheckersBoard&)
         unsigned long long hash()
@@ -48,7 +48,7 @@ cdef extern from "checkers.h":
         cpplist[vector[unsigned char]] pieces()
         const char* data()
 
-        void move(const Move&)
+        void move(const Move&) except +
 
 cdef class PyCheckersBoard:
     cdef CheckersBoard c_impl
