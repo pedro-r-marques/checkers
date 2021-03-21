@@ -73,8 +73,8 @@ class MinMaxTreeExecutor(object):
             if len(parent.heapq) == parent.n_children:
                 qhead = parent.heapq[0]
                 parent.score = qhead.score
-                parent.path = qhead.path
                 npath = [qhead.move] + qhead.path
+                parent.path = npath
                 update_list.append((parent, npath))
         return update_list
 

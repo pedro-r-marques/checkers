@@ -42,3 +42,32 @@ class PlayScorerModelTest(unittest.TestCase):
         board.initialize(state)
         result = self.algorithm.move_info(board, CheckersBoard.WHITE, None)
         self.assertTrue(result)
+
+    def test_trace(self):
+        pieces = [
+            [0, 1, 1],
+            [1, 0, 1],
+            [1, 4, 1],
+            [2, 1, 1],
+            [3, 2, 2],
+            [4, 3, 2],
+            [4, 5, 1],
+            [4, 7, 1],
+            [6, 3, 2],
+            [6, 5, 2],
+            [6, 7, 2],
+            [7, 0, 2]
+        ]
+        state = [[0] * 8 for _ in range(8)]
+        for row, col, piece in pieces:
+            state[row][col] = piece
+        board = CheckersBoard()
+        board.initialize(state)
+        self.algorithm.move_select(board, CheckersBoard.WHITE, None)
+        info = self.algorithm.move_info(board, CheckersBoard.WHITE, None)
+        for minfo in info:
+            trace = minfo['trace']
+            piece = board.get_position(trace[0][0])
+            self.assertIn(piece, [CheckersBoard.BLACK,
+                          CheckersBoard.BLACK_KING],
+                          msg="%r %r" % (minfo['move'], trace))

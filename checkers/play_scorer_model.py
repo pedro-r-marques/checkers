@@ -52,13 +52,12 @@ class TFCallExecutor(ScorerExecutor):
             if batch_size < i:
                 batch_size = i
 
-        data = [tf.convert_to_tensor(arr[:batch_size])
-                for arr in [self.x_board, self.x_player]]
+        data = [arr[:batch_size] for arr in [self.x_board, self.x_player]]
         y_pred = self.predict(data)
+        y_pred = y_pred.numpy()
 
         for i, node in enumerate(self.x_node_list):
             score = y_pred[i, 1] - y_pred[i, 2]
-            score = score.numpy()
             player = node.player
             if player == CheckersBoard.BLACK:
                 score = -score

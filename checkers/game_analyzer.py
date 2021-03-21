@@ -86,4 +86,4 @@ if __name__ == "__main__":
     with open(args.filename, 'rb') as fp:
         log_history = pickle.load(fp)
 
-    app.run()
+    app.run(threaded=False)
