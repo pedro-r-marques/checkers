@@ -16,12 +16,11 @@ class MinMaxNode(object):
     """ Node in minmax tree.
     """
 
-    __slots__ = ['board', 'move', 'player', 'n_children',
+    __slots__ = ['board', 'player', 'n_children',
                  'score', 'heapq', 'parents', 'path']
 
-    def __init__(self, board, move, player):
+    def __init__(self, board, player):
         self.board = board
-        self.move = move        # parent move that resulted in board
         self.player = player    # next player to move
         self.n_children = 0
         self.score = None
@@ -29,16 +28,14 @@ class MinMaxNode(object):
         self.parents = []
         self.path = []
 
-    def __lt__(self, rhs):
-        return self.score < rhs.score
 
+class HeapQueueEntry(object):
+    __slots__ = ['move', 'score', 'path']
 
-class MinMaxLeaf(object):
-    __slots__ = ['move', 'score']
-
-    def __init__(self, move, score):
+    def __init__(self, move, score, path):
         self.move = move
         self.score = score
+        self.path = path
 
     def __lt__(self, rhs):
         return self.score > rhs.score
@@ -101,14 +98,14 @@ class TFCallExecutor(object):
         player = node.player
         if player == CheckersBoard.BLACK:
             score = -score
-        # heapq: max score (min inv score)
-        heapq.heappush(node.heapq, MinMaxLeaf(move, score))
+
+        heapq.heappush(node.heapq, HeapQueueEntry(move, score, [move]))
 
         if len(node.heapq) == node.n_children:
             qhead = node.heapq[0]
             node.score = qhead.score
-            node.path = [qhead.move]
-            self.node_update_fn(node)
+            node.path = qhead.path
+            self.node_update_fn(node, qhead.path)
 
 
 class TFScorerPlayer(object):
@@ -121,27 +118,28 @@ class TFScorerPlayer(object):
         self.max_depth = kwargs.get('max_depth', 4)
         self.cache = cachetools.Cache(maxsize=32*1024)
 
-    def _node_update_parents(self, node):
+    def _node_update_parents(self, node, path):
         update_list = []
-        for parent in node.parents:
-            heapq.heappush(parent.heapq, node)
+        for parent, move in node.parents:
+            heapq.heappush(parent.heapq, HeapQueueEntry(
+                move, -node.score, path))
             node.heapq = []
 
             if len(parent.heapq) == parent.n_children:
                 qhead = parent.heapq[0]
-                score = qhead.score
-                parent.score = -score
-                parent.path = [qhead.move] + qhead.path
-                update_list.append(parent)
+                parent.score = qhead.score
+                parent.path = qhead.path
+                npath = [qhead.move] + qhead.path
+                update_list.append((parent, npath))
         return update_list
 
-    def _node_update(self, node):
-        node_list = [node]
-        while node_list:
-            nnode_list = []
-            for node in node_list:
-                nnode_list.extend(self._node_update_parents(node))
-            node_list = nnode_list
+    def _node_update(self, node, path):
+        work_list = [(node, path)]
+        while work_list:
+            nwork_list = []
+            for node, path in work_list:
+                nwork_list.extend(self._node_update_parents(node, path))
+            work_list = nwork_list
 
     def _run_minmax(self, node, depth):
         board = node.board
@@ -165,31 +163,33 @@ class TFScorerPlayer(object):
         for move in moves:
             nboard = CheckersBoard.copy(board)
             nboard.move(move)
-            key = (hash(nboard), hash(tuple(move)), opponent, depth)
+            key = (hash(nboard), opponent, depth)
             if key in self.cache:
                 child = self.cache[key]
                 assert child.board == nboard
                 if child.score is not None:
-                    heapq.heappush(node.heapq, child)
+                    heapq.heappush(node.heapq, HeapQueueEntry(
+                        move, -child.score, child.path))
                     continue
-                node.parents.append(node)
+                child.parents.append((node, move))
                 continue
 
-            child = MinMaxNode(nboard, move, opponent)
+            child = MinMaxNode(nboard, opponent)
             self.cache[key] = child
-            child.parents.append(node)
+            child.parents.append((node, move))
             children.append(child)
 
         if len(node.heapq) == node.n_children:
-            node.score = -node.heapq[0].score
-            self._node_update(node)
+            qhead = node.heapq[0]
+            node.score = qhead.score
+            self._node_update(node, qhead.path)
             return
 
         for child in children:
             self._run_minmax(child, depth - 1)
 
     def move_minmax(self, board, player):
-        top_level = MinMaxNode(board, None, player)
+        top_level = MinMaxNode(board, player)
         self._run_minmax(top_level, self.max_depth)
         self.exec.flush()
 
@@ -202,7 +202,7 @@ class TFScorerPlayer(object):
         return moves
 
     def move_info(self, board, player, turn):
-        top_level = MinMaxNode(board, None, player)
+        top_level = MinMaxNode(board, player)
         self._run_minmax(top_level, self.max_depth)
         self.exec.flush()
 
@@ -214,10 +214,9 @@ class TFScorerPlayer(object):
             node = heapq.heappop(pq)
             info = {
                 'move': node.move,
-                'score': node.score,
+                'score': float(node.score),
+                'trace': node.path,
             }
-            if isinstance(node, MinMaxNode):
-                info['trace'] = node.path
             result.append(info)
 
         return result

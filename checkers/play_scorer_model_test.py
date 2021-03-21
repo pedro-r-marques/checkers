@@ -2,7 +2,7 @@ import heapq
 import unittest
 
 from .py_checkers import PyCheckersBoard as CheckersBoard
-from .play_scorer_model import TFScorerPlayer, MinMaxLeaf
+from .play_scorer_model import TFScorerPlayer, HeapQueueEntry
 from .py_scorer import PyScorer
 
 
@@ -31,13 +31,13 @@ class MockExecutor(object):
         self.x_scores = []
 
     def update(self, node, move, score):
-        heapq.heappush(node.heapq, MinMaxLeaf(move, score))
+        heapq.heappush(node.heapq, HeapQueueEntry(move, score, [move]))
 
         if len(node.heapq) == node.n_children:
             qhead = node.heapq[0]
             node.score = qhead.score
-            node.path.insert(0, qhead.move)
-            self.cb_update_fn(node)
+            node.path = qhead.path
+            self.cb_update_fn(node, qhead.path)
 
 
 class PlayScorerMinMaxTest(unittest.TestCase):
@@ -56,6 +56,8 @@ class PlayScorerMinMaxTest(unittest.TestCase):
         board.initialize(state)
         player = TFScorerPlayer(max_depth=1)
         player.exec = MockExecutor(player._node_update)
+        info = player.move_info(board, CheckersBoard.BLACK, None)
+        print(info)
         moves = player.move_minmax(board, CheckersBoard.BLACK)
         self.assertEqual(moves, [[(5, 2), (4, 3)], [(5, 4), (4, 5)]])
 
@@ -110,7 +112,10 @@ class PlayScorerMinMaxTest(unittest.TestCase):
         board.initialize(state)
         player = TFScorerPlayer(max_depth=4)
         player.exec = MockExecutor(player._node_update)
-        moves = player.move_minmax(board, CheckersBoard.BLACK)
+        info = player.move_info(board, CheckersBoard.BLACK, None)
+        print(info)
+        max_score = max(x['score'] for x in info)
+        moves = [x['move'] for x in info if x['score'] == max_score]
         self.assertNotIn([(5, 0), (4, 1)], moves)
         self.assertNotIn([(5, 4), (4, 3)], moves)
 

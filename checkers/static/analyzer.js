@@ -105,7 +105,7 @@ function show_trace(trace_path) {
         if (repr.length) {
             repr += ", ";
         }
-        repr += move_repr(entry[0])
+        repr += move_repr(entry)
     });
     return repr;
 }
@@ -136,16 +136,6 @@ function show_debug(move_list) {
         td.style.whiteSpace = "nowrap";
         td = tr.insertCell();
         td.innerHTML = move_entry['score'].toString();
-        td = tr.insertCell();
-        if ("probabilities" in move_entry) {
-            td.innerHTML = show_probabilities(move_entry['probabilities']);
-        } else if ("tf_score" in move_entry) {
-            td.innerHTML = move_entry["tf_score"].toString();
-        }
-        td = tr.insertCell();
-        if ("pmf" in move_entry) {
-            td.innerHTML = move_entry['pmf'].toFixed(4);
-        }
         td = tr.insertCell();
         td.innerHTML = show_trace(move_entry['trace']);
     });
