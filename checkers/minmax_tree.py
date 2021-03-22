@@ -60,7 +60,7 @@ class MinMaxTreeExecutor(object):
     def __init__(self, executor, max_depth=4):
         self.max_depth = max_depth
         self.exec = executor
-        self.cache = cachetools.Cache(maxsize=32*1024)
+        self.cache = cachetools.LRUCache(maxsize=32*1024)
         executor.set_node_update_cb(self._node_update)
 
     def _node_update_parents(self, node, path):

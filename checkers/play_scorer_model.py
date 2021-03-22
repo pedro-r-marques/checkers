@@ -1,5 +1,7 @@
 import os
+import random
 
+import cachetools
 import numpy as np
 
 import tensorflow as tf
@@ -20,6 +22,8 @@ class TFCallExecutor(ScorerExecutor):
         self.x_player = np.zeros((self.BATCH_SIZE, 2), dtype=np.bool)
         self.x_node_list = []
         self.x_move_list = []
+        self.x_key_list = []
+        self.cache = cachetools.LRUCache(maxsize=32*1024)
 
     @staticmethod
     def _make_features(board, player, x_board, x_player):
@@ -37,11 +41,17 @@ class TFCallExecutor(ScorerExecutor):
         return self.model(args)
 
     def enqueue(self, node, board, move, player):
+        key = (hash(board), player)
+        if key in self.cache:
+            self.update(node, move, self.cache[key])
+            return
+
         i = len(self.x_node_list)
         assert i < self.BATCH_SIZE
         self._make_features(board, player, self.x_board[i], self.x_player[i])
         self.x_node_list.append(node)
         self.x_move_list.append(move)
+        self.x_key_list.append(key)
         if len(self.x_node_list) == self.BATCH_SIZE:
             self.flush()
 
@@ -61,10 +71,13 @@ class TFCallExecutor(ScorerExecutor):
             player = node.player
             if player == CheckersBoard.BLACK:
                 score = -score
+            key = self.x_key_list[i]
+            self.cache[key] = score
             self.update(node, self.x_move_list[i], score)
 
         self.x_node_list = []
         self.x_move_list = []
+        self.x_key_list = []
 
 
 class TFScorerPlayer(MinMaxTreeExecutor):
@@ -80,4 +93,6 @@ class TFScorerPlayer(MinMaxTreeExecutor):
         moves = self.move_minmax(board, player)
         if not moves:
             return None
+        if len(moves) > 1:
+            return random.choice(moves)
         return moves[0]
