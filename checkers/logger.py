@@ -28,11 +28,7 @@ class GameLogger():
     @staticmethod
     def _board_object(log_entry):
         board = CheckersBoard()
-        state = [[] for _ in range(8)]
-        for i in range(8):
-            start = i * 8
-            state[i] = [int(x) for x in log_entry.board[start: start + 8]]
-        board.initialize(state)
+        board.from_byte_array(log_entry.board)
         return board
 
     def player_counts(self, index):
@@ -48,6 +44,7 @@ class GameLogger():
 class SummaryLogger():
     def __init__(self):
         self.data = {}
+        self.results = [0] * 3
 
     @classmethod
     def hash(cls, log_entry):
@@ -93,6 +90,7 @@ class SummaryLogger():
                 winner = CheckersBoard.WHITE
             if winner == 0 and len(log.history) < min_turns:
                 continue
+            self.results[winner] += 1
             self.add(log, winner)
 
     def save(self, filename, threshold):

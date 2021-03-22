@@ -2,6 +2,9 @@ var turn = 0;
 var turn_count = 0;
 
 function move_repr(move) {
+    if (move == null) {
+        return "None";
+    }
     let str = "";
     move.forEach(element => {
         if (str.length) {
@@ -102,9 +105,23 @@ function show_trace(trace_path) {
         if (repr.length) {
             repr += ", ";
         }
-        repr += move_repr(entry[0])
+        repr += move_repr(entry)
     });
     return repr;
+}
+
+function show_probabilities(plist) {
+    if (plist == null) {
+        return "";
+    }
+    var repr = "[";
+    plist.forEach(pvalue => {
+        if (repr.length > 1) {
+            repr += ", "
+        }
+        repr += pvalue.toFixed(4);
+    })
+    return repr + "]";
 }
 
 function show_debug(move_list) {
@@ -119,8 +136,6 @@ function show_debug(move_list) {
         td.style.whiteSpace = "nowrap";
         td = tr.insertCell();
         td.innerHTML = move_entry['score'].toString();
-        td = tr.insertCell();
-        td.innerHTML = move_entry['weight'].toString();
         td = tr.insertCell();
         td.innerHTML = show_trace(move_entry['trace']);
     });

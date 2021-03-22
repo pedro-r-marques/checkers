@@ -9,6 +9,8 @@ import flask
 
 from .py_checkers import PyCheckersBoard as CheckersBoard
 from .play_minmax import MinMaxPlayer
+from .play_probability import StatsPlayer
+from .play_scorer_model import TFScorerPlayer
 from .logger import GameLogger
 
 
@@ -34,7 +36,10 @@ app.secret_key = os.getenv("SECRET_KEY", "dev")
 
 global_sessions = cachetools.TTLCache(maxsize=1024, ttl=60*30)
 
-algorithm = MinMaxPlayer(select_best=True)
+algorithms = {
+    'minmax': MinMaxPlayer(select_best=True),
+}
+algorithms['default'] = algorithms['minmax']
 
 
 def get_session_state():
@@ -103,6 +108,10 @@ def make_move():
         return flask.make_response("Invalid player id", 400)
 
     if 'auto' in data and data['auto']:
+        name = data.get('algorithm', 'default')
+        if name not in algorithms:
+            name = 'default'
+        algorithm = algorithms[name]
         move = algorithm.move_select(board, player, None)
         if not app.testing:
             state.log_move(player, move)
@@ -141,4 +150,12 @@ def board_init():
 
 
 if __name__ == "__main__":
+    if StatsPlayer.is_data_available():
+        algorithms['stats'] = StatsPlayer(select_best=True)
+        algorithms['default'] = algorithms['stats']
+
+    if os.path.exists(TFScorerPlayer.DATADIR):
+        algorithms['tf_scorer'] = TFScorerPlayer()
+        algorithms['default'] = algorithms['tf_scorer']
+
     app.run()

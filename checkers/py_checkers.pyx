@@ -21,7 +21,11 @@ cdef class PyCheckersBoard:
     def initialize(self, state):
         cdef vector[int] flat_vec = [x for row in state for x in row]
         self.c_impl.initialize(flat_vec)
-    
+
+    def from_byte_array(self, byte_arr):
+        cdef vector[int] flat_vec = [int(x) for x in byte_arr]
+        self.c_impl.initialize(flat_vec)
+
     def copy(self):
         dst = PyCheckersBoard()
         dst.c_impl = self.c_impl

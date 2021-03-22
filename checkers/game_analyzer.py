@@ -8,13 +8,13 @@ import pickle
 import os
 
 from .py_checkers import PyCheckersBoard as CheckersBoard
-from .play_minmax import MinMaxPlayer
+from .play_scorer_model import TFScorerPlayer
 
 source_dir = os.path.dirname(os.path.abspath(__file__))
 app = flask.Flask("analyzer", static_folder=os.path.join(source_dir, 'static'))
 log_history = None
 
-algorithm = MinMaxPlayer()
+algorithm = TFScorerPlayer()
 
 
 @app.route('/', methods=['GET'])
@@ -84,4 +84,4 @@ if __name__ == "__main__":
     with open(args.filename, 'rb') as fp:
         log_history = pickle.load(fp)
 
-    app.run()
+    app.run(threaded=False)
