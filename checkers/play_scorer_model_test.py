@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from .py_checkers import PyCheckersBoard as CheckersBoard
@@ -13,6 +14,8 @@ def board_from_pieces(pieces):
     return board
 
 
+@unittest.skipUnless(
+    os.path.exists(TFScorerPlayer.DATADIR), "model file not present")
 class PlayScorerModelTest(unittest.TestCase):
     def setUp(self):
         self.algorithm = TFScorerPlayer()
