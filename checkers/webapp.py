@@ -24,7 +24,9 @@ class SessionState():
     def log_move(self, player, move):
         self.log.log(self.board, self.turn, player, move)
         filename = self.tstamp.strftime("%Y%m%d%H%M%S%f") + ".dat"
-        self.log.save(os.path.join(os.getenv('SESSION_LOG_DIR', ""), filename))
+        logdir = os.getenv('SESSION_LOG_DIR')
+        if logdir is not None:
+            self.log.save(os.path.join(logdir, filename))
         self.turn += 1
 
 
