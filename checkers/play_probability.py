@@ -20,6 +20,13 @@ class StatsPlayer(object):
         self.min_max_player = MinMaxPlayer(**kwargs)
         self._load_data()
 
+    @staticmethod
+    def is_data_available():
+        filenames = [f'player{i}_positions.bin' for i in [1, 2]]
+        return all(
+            os.path.exists(
+                os.path.join(StatsPlayer.DATADIR, f)) for f in filenames)
+
     def _load_data(self):
         filename = os.path.join(self.DATADIR, 'player1_positions.bin')
         with open(filename, 'rb') as fp:

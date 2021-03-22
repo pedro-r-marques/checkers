@@ -79,5 +79,6 @@ class PlayScorerModelTest(unittest.TestCase):
         info = self.algorithm.move_info(board, CheckersBoard.WHITE, None)
         self.assertTrue(info)
         max_score = info[0]['score']
-        moves = [minfo['move'] for minfo in info if minfo['score'] == max_score]
+        moves = [minfo['move']
+                 for minfo in info if minfo['score'] == max_score]
         self.assertIn([(0, 3), (4, 7)], moves)

@@ -173,7 +173,6 @@ class MinMaxTreeTest(unittest.TestCase):
                           msg="%r %r" % (minfo['move'], trace))
 
 
-
 class MinMaxCompareTest(unittest.TestCase):
     def setUp(self):
         random.seed(1337)

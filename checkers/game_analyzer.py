@@ -8,8 +8,6 @@ import pickle
 import os
 
 from .py_checkers import PyCheckersBoard as CheckersBoard
-from .play_minmax import MinMaxPlayer
-from .play_probability import StatsPlayer
 from .play_scorer_model import TFScorerPlayer
 
 source_dir = os.path.dirname(os.path.abspath(__file__))
