@@ -3,4 +3,4 @@ uwsgi
 cython
 cachetools
 tensorflow
-
+google-cloud-storage
