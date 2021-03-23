@@ -1,7 +1,6 @@
 """ Simple flask based webapp design to allow human vs computer play.
 """
 import datetime
-import logging
 import os
 import uuid
 
@@ -153,12 +152,12 @@ def board_init():
 
 
 if StatsPlayer.is_data_available():
-    app.logger.info('Loading stats player...')
+    print('Loading stats player...')
     algorithms['stats'] = StatsPlayer(select_best=True)
     algorithms['default'] = algorithms['stats']
 
 if os.path.exists(TFScorerPlayer.DATADIR):
-    app.logger.info('Loading TFScorer...')
+    print('Loading TFScorer...')
     algorithms['tf_scorer'] = TFScorerPlayer()
     algorithms['tf_scorer'].initialize()
     algorithms['default'] = algorithms['tf_scorer']
