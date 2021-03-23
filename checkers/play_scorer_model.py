@@ -79,6 +79,11 @@ class TFCallExecutor(ScorerExecutor):
         self.x_move_list = []
         self.x_key_list = []
 
+    def initialize(self):
+        """ Run an empty batch to trigger tensorflow initialization
+        """
+        self.predict([self.x_board, self.x_player])
+
 
 class TFScorerPlayer(MinMaxTreeExecutor):
     DATADIR = os.path.join(
@@ -88,6 +93,9 @@ class TFScorerPlayer(MinMaxTreeExecutor):
         self.model = keras.models.load_model(self.DATADIR)
         self.exec = TFCallExecutor(self.model)
         super().__init__(self.exec, max_depth=kwargs.get('max_depth', 4))
+
+    def initialize(self):
+        self.exec.initialize()
 
     def move_select(self, board, player, turn=None):
         moves = self.move_minmax(board, player)

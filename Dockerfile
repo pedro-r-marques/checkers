@@ -7,4 +7,4 @@ COPY . .
 RUN python -m setup install
 WORKDIR /
 RUN rm -rf /workdir
-ENTRYPOINT [ "gunicorn", "-b", "0.0.0.0:8000", "checkers.webapp:app" ]
+ENTRYPOINT [ "uwsgi", "--http", ":8000", "--log-5xx", "--disable-logging", "-w", "checkers.webapp:app" ]
