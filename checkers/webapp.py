@@ -1,6 +1,7 @@
 """ Simple flask based webapp design to allow human vs computer play.
 """
 import datetime
+import json
 import os
 import uuid
 
@@ -12,22 +13,7 @@ from .play_minmax import MinMaxPlayer
 from .play_probability import StatsPlayer
 from .play_scorer_model import TFScorerPlayer
 from .logger import GameLogger
-
-
-class SessionState():
-    def __init__(self):
-        self.board = CheckersBoard()
-        self.tstamp = datetime.datetime.now()
-        self.log = GameLogger()
-        self.turn = 0
-
-    def log_move(self, player, move):
-        self.log.log(self.board, self.turn, player, move)
-        filename = self.tstamp.strftime("%Y%m%d%H%M%S%f") + ".dat"
-        logdir = os.getenv('SESSION_LOG_DIR')
-        if logdir is not None:
-            self.log.save(os.path.join(logdir, filename))
-        self.turn += 1
+from .gcloud import StorageWriter, gcloud_meta_project_id
 
 
 source_dir = os.path.dirname(os.path.abspath(__file__))
@@ -43,13 +29,54 @@ algorithms = {
 }
 algorithms['default'] = algorithms['minmax']
 
+PROJECT_ID = gcloud_meta_project_id()
 
-def get_session_state():
+
+def log_message(request, message):
+    entry = {
+        'severity': "INFO",
+        'message': message,
+    }
+    if PROJECT_ID is not None:
+        trace_header = request.headers.get("X-Cloud-Trace-Context")
+        trace = trace_header.split("/")
+        trace_id = f"projects/{PROJECT_ID}/traces/{trace[0]}"
+        entry["logging.googleapis.com/trace"] = trace_id
+    host = request.headers.get('X-Forwarded-For')
+    if host:
+        entry['host'] = host
+    print(json.dumps(entry))
+
+
+class SessionState():
+    def __init__(self, request):
+        self.board = CheckersBoard()
+        self.tstamp = datetime.datetime.now()
+        self.log = GameLogger()
+        self.turn = 0
+        self.gs_writer = None
+        gsbucket = os.getenv("GSTORAGE_BUCKET")
+        if gsbucket is not None:
+            self.gs_writer = StorageWriter(gsbucket)
+        log_message(request, "New Session")
+
+    def log_move(self, player, move):
+        self.log.log(self.board, self.turn, player, move)
+        filename = self.tstamp.strftime("%Y%m%d%H%M%S%f") + ".dat"
+        logdir = os.getenv('SESSION_LOG_DIR')
+        if logdir is not None:
+            self.log.save(os.path.join(logdir, filename))
+        if self.gs_writer is not None:
+            self.gs_writer.log_write(self.log, filename)
+        self.turn += 1
+
+
+def get_session_state(request):
     if 'uuid' not in flask.session:
         flask.session['uuid'] = uuid.uuid4()
     session_id = flask.session['uuid']
     if session_id not in global_sessions:
-        global_sessions[session_id] = SessionState()
+        global_sessions[session_id] = SessionState(request)
     return global_sessions[session_id]
 
 
@@ -60,7 +87,7 @@ def index():
 
 @app.route('/api/board',  methods=['GET'])
 def get_board():
-    state = get_session_state()
+    state = get_session_state(flask.request)
     board = state.board
     response = {
         'board': board.pieces(),
@@ -75,7 +102,7 @@ def get_valid_moves(row, col):
     valid = all(v >= 0 and v < CheckersBoard.BOARD_SIZE for v in coordinates)
     if not valid:
         return flask.make_response("Invalid coordinates", 400)
-    state = get_session_state()
+    state = get_session_state(flask.request)
     board = state.board
     pieces = board.count()
     if any(c == 0 for c in pieces):
@@ -94,7 +121,7 @@ def get_valid_moves(row, col):
 
 @app.route('/api/move', methods=['POST'])
 def make_move():
-    state = get_session_state()
+    state = get_session_state(flask.request)
     board = state.board
 
     pieces = board.count()
@@ -147,7 +174,7 @@ def board_init():
     session_id = flask.session['uuid']
     if session_id not in global_sessions:
         return flask.make_response("Invalid session", 400)
-    global_sessions[session_id] = SessionState()
+    global_sessions[session_id] = SessionState(flask.request)
     return flask.make_response("OK", 200)
 
 
