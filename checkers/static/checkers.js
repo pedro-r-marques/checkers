@@ -35,21 +35,28 @@ function board_update_content(response) {
             let tr = tbody.rows[row];
             let td = tr.cells[col + 1];
 
-            if (piece == 0) {
-                td.innerHTML = "";
-                td.classList.remove('white-piece');
-                td.classList.remove('black-piece');
-            } else {
-                if (piece == 1 || piece == 2) {
-                    td.innerHTML = "x";
-                } else {
-                    td.innerHTML = "X";
-                }
-                if (piece == 1 || piece == 3) {
+            switch (piece) {
+                case 0:
+                    td.innerHTML = "";
+                    td.classList.remove('white-piece');
+                    td.classList.remove('black-piece');
+                    break;
+                case 1:
+                    td.innerHTML = "&#x26c0;";
                     td.classList.add('white-piece');
-                } else {
+                    break;
+                case 2:
+                    td.innerHTML = "&#x26c2;";
                     td.classList.add('black-piece');
-                }
+                    break;
+                case 3:
+                    td.innerHTML = "&#x26c1;";
+                    td.classList.add('white-piece');
+                    break;
+                case 4:
+                    td.innerHTML = "&#x26c3;";
+                    td.classList.add('black-piece');
+                    break;
             }
         }
     }
