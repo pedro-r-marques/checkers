@@ -4,6 +4,14 @@ var selectedCell = null;
 var currentPlayOptions = [];
 var gameRunning = false;
 
+var computerPlayer = 1;
+let sValue = sessionStorage.getItem("computerPlayer");
+if (sValue != null) {
+    computerPlayer = parseInt(sValue);
+}
+var computerLevel = 2;
+
+
 function board_update_content(response) {
     // Update the board given the response from the webserver
 
@@ -29,9 +37,16 @@ function board_update_content(response) {
     let xboard = document.querySelector("#board");
     let tbody = xboard.querySelector("tbody");
 
-    for (row = 0; row < 8; row++) {
-        for (col = 0; col < 8; col++) {
-            let piece = board[row][col];
+    for (i = 0; i < 8; i++) {
+        for (j = 0; j < 8; j++) {
+            let piece = board[i][j];
+
+            var row = i;
+            var col = j;
+            if (computerPlayer == 2) {
+                row = 7 - row;
+                col = 7 - col;
+            }
             let tr = tbody.rows[row];
             let td = tr.cells[col + 1];
 
@@ -63,26 +78,34 @@ function board_update_content(response) {
 
     // Update the score box
     el_count_computer = document.querySelector("#computer-capture-count");
-    let value = 12 - response['pieces'][1];
-    el_count_computer.innerHTML = value.toString();
     el_count_player = document.querySelector("#player-capture-count");
-    value = 12 - response['pieces'][0];
-    el_count_player.innerHTML = value.toString();
+    let white_captures = 12 - response['pieces'][1];
+    let black_captures = 12 - response['pieces'][0];
+    if (computerPlayer == 1) {
+        el_count_computer.innerHTML = white_captures.toString();
+        el_count_player.innerHTML = black_captures.toString();
+    } else {
+        el_count_computer.innerHTML = black_captures.toString();
+        el_count_player.innerHTML = white_captures.toString();
+    }
 
     // Update the game-over box.
     gameRunning = response['pieces'].every(value => (value > 0));
     let game_over_div = document.querySelector("div.game-over");
-    let win = game_over_div.querySelector("#winner");
+    let game_over_box = game_over_div.querySelector("dl");
+    let win = game_over_box.querySelector("#winner");
 
     if (gameRunning) {
-        game_over_div.style.display = "none";
+        game_over_box.style.visibility = "hidden";
         win.innerHTML = "";
     } else {
-        game_over_div.style.display = "block";
+        game_over_box.style.visibility = "visible";
         if (response['pieces'][0] == 0) {
-            win.innerHTML = "Player (black) wins";
+            let playerDesc = (computerPlayer == 1) ? "Player" : "Computer";
+            win.innerHTML = playerDesc + " (black) wins";
         } else {
-            win.innerHTML = "Computer (white) wins";
+            let playerDesc = (computerPlayer == 1) ? "Computer" : "Player";
+            win.innerHTML = playerDesc + " (white) wins";
         }
     }
 }
@@ -121,6 +144,12 @@ function showPlayOptions() {
         let row = end[0];
         let col = end[1];
 
+        // coordinates to table cell
+        if (computerPlayer == 2) {
+            row = 7 - row;
+            col = 7 - col;
+        }
+
         let tr = tbody.rows[row];
         let element = tr.cells[col + 1];
 
@@ -151,6 +180,12 @@ function clearPlayOptions(row, col) {
 
         let row = end[0];
         let col = end[1];
+
+        // coordinates to table cell
+        if (computerPlayer == 2) {
+            row = 7 - row;
+            col = 7 - col;
+        }
 
         let tr = tbody.rows[row];
         let element = tr.cells[col + 1];
@@ -186,8 +221,9 @@ function isInCurrentOptions(row, col) {
 }
 
 function makeMove(start, end) {
+    let humanPlayer = (computerPlayer == 1) ? 2 : 1;
     let request_data = {
-        'player': 2,
+        'player': humanPlayer,
         'start': start,
         'end': end,
     };
@@ -207,8 +243,9 @@ function makeMove(start, end) {
 
 function advanceGame() {
     let request_data = {
-        'player': 1,
+        'player': computerPlayer,
         'auto': true,
+        'level': computerLevel,
     };
 
     fetch('/api/move', {
@@ -226,14 +263,29 @@ function advanceGame() {
 
 }
 
+function isComputerPiece(value) {
+    switch (computerPlayer) {
+        case 1:
+            return value == 1 || value == 3;
+        case 2:
+            return value == 2 || value == 4;
+    }
+    return false;
+}
 function onCellClick(element, event) {
     // Handle a click on the checkers board
     // Clicking on a piece selects that piece to move and displays potential
     // move options; clicking on one of the move options triggers the move.
-    const row = parseInt(element.getAttribute("row"));
-    const col = parseInt(element.getAttribute("col"));
+    let row = parseInt(element.getAttribute("row"));
+    let col = parseInt(element.getAttribute("col"));
 
-    let value = currentBoard[row][col];
+    // table cell to coordinates
+    if (computerPlayer == 2) {
+        row = 7 - row;
+        col = 7 - col;
+    }
+
+    const value = currentBoard[row][col];
     if (value == 0) {
         if (selectedCell == null || !gameRunning) {
             return;
@@ -248,7 +300,7 @@ function onCellClick(element, event) {
                 }
             });
         }
-    } else if (value == 2 || value == 4) {
+    } else if (!isComputerPiece(value)) {
         if (selectedCell != null) {
             clearPlayOptions(selectedCell[0], selectedCell[1]);
         }
@@ -256,7 +308,7 @@ function onCellClick(element, event) {
         if (gameRunning) {
             getPlayOptions(row, col);
         }
-    } else if (value == 1 || value == 3) {
+    } else if (isComputerPiece(value)) {
         if (selectedCell != null) {
             clearPlayOptions(selectedCell[0], selectedCell[1]);
         }
@@ -278,19 +330,90 @@ function game_restart() {
 
     board_clear();
 
-    fetch('/api/restart', { 'method': 'POST' })
+    let p = fetch('/api/restart', { 'method': 'POST' })
         .then((response) => {
             if (response.status != 200) {
                 console.log(response);
             }
-            board_update();
+            return board_update();
         });
+
+    if (computerPlayer == 2) {
+        p.then(function () { advanceGame(); })
+    }
 };
+
+function settingsSetup() {
+    var playerInputs = ["playerSelectionWhite", "playerSelectionBlack"];
+    for (var i = 0; i < playerInputs.length; i++) {
+        var element = document.getElementById(playerInputs[i]);
+        element.checked = (i == computerPlayer - 1);
+    }
+
+    var levelInputs = ["levelSelector1", "levelSelector2", "levelSelector3"];
+    for (var i = 0; i < levelInputs.length; i++) {
+        var element = document.getElementById(levelInputs[i]);
+        element.checked = (i == computerLevel - 1);
+    }
+}
+
+function updateCoordinates(nplayer) {
+    let xboard = document.querySelector("#board");
+    let thead = xboard.querySelector("thead");
+    for (var i = 0; i < 8; i++) {
+        let col = i;
+        if (nplayer == 2) {
+            col = 7 - col;
+        }
+        let chr = String.fromCharCode("a".codePointAt(0) + col);
+        let element = thead.rows[0].cells[i + 1];
+        element.innerHTML = chr;
+    }
+
+    let tbody = xboard.querySelector("tbody");
+    for (var i = 0; i < 8; i++) {
+        let tr = tbody.rows[i];
+        let row = i;
+        if (nplayer == 2) {
+            row = 7 - row;
+        }
+        let element = tr.cells[0];
+        element.innerHTML = String.fromCharCode("0".codePointAt(0) + row);
+    }
+}
+
+function settingsChange() {
+    var playerInputs = ["playerSelectionWhite", "playerSelectionBlack"];
+    var nplayer = computerPlayer;
+    for (var i = 0; i < playerInputs.length; i++) {
+        var element = document.getElementById(playerInputs[i]);
+        if (element.checked) {
+            nplayer = i + 1;
+        }
+    }
+
+    var levelInputs = ["levelSelector1", "levelSelector2", "levelSelector3"];
+    for (var i = 0; i < levelInputs.length; i++) {
+        var element = document.getElementById(levelInputs[i]);
+        if (element.checked) {
+            computerLevel = i + 1;
+        }
+    }
+
+    let settingsModelElement = document.getElementById('settingsModal');
+    let modal = bootstrap.Modal.getInstance(settingsModelElement);
+    modal.hide();
+
+    if (nplayer != computerPlayer) {
+        updateCoordinates(nplayer);
+        computerPlayer = nplayer;
+        sessionStorage.setItem("computerPlayer", nplayer.toString());
+        game_restart();
+    }
+}
 
 function initialize() {
     // Register event listeners and fetch the board contents.
-    board_update();
-
     let xboard = document.querySelector("#board");
     let tbody = xboard.querySelector("tbody");
 
@@ -305,6 +428,24 @@ function initialize() {
             });
         }
     }
+
+    let settingsElement = document.getElementById('settingsModal');
+    settingsElement.addEventListener('show.bs.modal', function (event) {
+        settingsSetup();
+    });
+    let settingsOK = document.getElementById('settings-btn-ok');
+    settingsOK.addEventListener('click', function (event) {
+        settingsChange();
+    });
+
+    let loadModealElement = document.getElementById('loadingModal');
+    let loadModal = new bootstrap.Modal(loadModealElement, { keyboard: false });
+    loadModal.show();
+    let boardLoadPromise = board_update();
+    loadModealElement.addEventListener('shown.bs.modal', function (event) {
+        boardLoadPromise.then(function () { loadModal.hide(); })
+    });
+
 
     let btn_restart = document.querySelector("#restart");
     btn_restart.addEventListener("click", function (event) {

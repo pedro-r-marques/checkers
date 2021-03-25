@@ -17,17 +17,17 @@ from .gcloud import StorageWriter, gcloud_meta_project_id
 
 
 source_dir = os.path.dirname(os.path.abspath(__file__))
-app = flask.Flask("checkers", static_url_path='',
-                  static_folder=os.path.join(source_dir, 'static'))
+app = flask.Flask("checkers", static_folder=os.path.join(source_dir, 'static'))
 app.secret_key = os.getenv("SECRET_KEY", "dev")
 
 
 global_sessions = cachetools.TTLCache(maxsize=1024, ttl=60*30)
 
 algorithms = {
-    'minmax': MinMaxPlayer(select_best=True),
+    'easy': MinMaxPlayer(max_depth=3),
+    'medium': MinMaxPlayer(max_depth=4, select_best=True),
 }
-algorithms['default'] = algorithms['minmax']
+algorithms['default'] = algorithms['medium']
 
 PROJECT_ID = gcloud_meta_project_id()
 
@@ -82,7 +82,7 @@ def get_session_state(request):
 
 @app.route('/', methods=['GET'])
 def index():
-    return flask.redirect('index.html', 303)
+    return flask.redirect('/static/index.html', 303)
 
 
 @app.route('/api/board',  methods=['GET'])
@@ -137,9 +137,14 @@ def make_move():
         return flask.make_response("Invalid player id", 400)
 
     if 'auto' in data and data['auto']:
-        name = data.get('algorithm', 'default')
+        level = data.get('level', 2)
+        name = "medium"
+        if level == 1:
+            name = "easy"
+        elif level == 3:
+            name = "hard"
         if name not in algorithms:
-            name = 'default'
+            name = "default"
         algorithm = algorithms[name]
         move = algorithm.move_select(board, player, None)
         if not app.testing:
@@ -180,14 +185,12 @@ def board_init():
 
 if StatsPlayer.is_data_available():
     print('Loading stats player...')
-    algorithms['stats'] = StatsPlayer(select_best=True)
-    algorithms['default'] = algorithms['stats']
+    algorithms['medium'] = StatsPlayer(select_best=True)
 
 if os.path.exists(TFScorerPlayer.DATADIR):
     print('Loading TFScorer...')
-    algorithms['tf_scorer'] = TFScorerPlayer()
-    algorithms['tf_scorer'].initialize()
-    algorithms['default'] = algorithms['tf_scorer']
+    algorithms['hard'] = TFScorerPlayer()
+
 
 if __name__ == "__main__":
     app.run(threaded=False)
