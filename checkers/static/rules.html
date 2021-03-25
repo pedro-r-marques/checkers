@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Game Rules</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+
+    <style>
+        .navbar {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+        crossorigin="anonymous"></script>
+
+    <nav class="navbar navbar-expand-sm navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="/index.html">Checkers</a>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row">
+            <dd>
+                <dt>Checkers (Draughts)</dt>
+
+                <dd>The game is played on a 8x8 board with 12 pieces for each player.
+                    Pieces (Men) can move forward diagonaly to an empty adajacent square.
+                    If an adajacent square on either diagnonal is occupied by an
+                    opponent's piece and there is an empty square behind it on the same
+                    diagonal, the piece jumps over the opponent piece capturing it.
+                    If from that position a subsequent capture is possible, it executed
+                    in the same turn. Capture moves are mandatory. When multiple capture
+                    moves are available, the player must choose the highest number
+                    of captures.
+                </dd>
+                <dd>
+                    When a Man reaches the top row of the board, it is promoted to a
+                    King. Kings can move in both directions and more than one square
+                    at a time. This is known as a "flying kings" rule.
+                </dd>
+                <dd>
+                    This rule set follows the variant commonly known as Spanish Draughts.
+                </dd>
+            </dd>
+        </div>
+    </div>
+</body>
+
+</html>
