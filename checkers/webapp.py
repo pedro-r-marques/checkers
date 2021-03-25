@@ -17,7 +17,8 @@ from .gcloud import StorageWriter, gcloud_meta_project_id
 
 
 source_dir = os.path.dirname(os.path.abspath(__file__))
-app = flask.Flask("checkers", static_folder=os.path.join(source_dir, 'static'))
+app = flask.Flask("checkers", static_url_path='',
+                  static_folder=os.path.join(source_dir, 'static'))
 app.secret_key = os.getenv("SECRET_KEY", "dev")
 
 
@@ -82,7 +83,7 @@ def get_session_state(request):
 
 @app.route('/', methods=['GET'])
 def index():
-    return flask.redirect('/static/index.html', 303)
+    return flask.redirect('index.html', 303)
 
 
 @app.route('/api/board',  methods=['GET'])
