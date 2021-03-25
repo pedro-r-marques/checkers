@@ -4,10 +4,18 @@
 <head>
     <title>Checkers</title>
     <meta charset="UTF-8">
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Noto+Sans+Symbols:400,700">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Noto+Sans+Symbols:400,700">
 
     <style>
+        .navbar {
+            margin-bottom: 20px;
+        }
+
         .checkers-board {
             border-spacing: 0;
             border-collapse: collapse;
@@ -28,11 +36,11 @@
         }
 
         .checkers-board .light {
-            background: #eee;
+            background: white;
         }
 
         .checkers-board .dark {
-            background: rgba(128, 128, 128, 1);
+            background: var(--bs-gray);
         }
 
         .checkers-board .white-piece {
@@ -40,175 +48,287 @@
         }
 
         .checkers-board .play-option {
-            background-color: darkolivegreen;
+            background-color: var(--bs-green);
         }
 
-        div.last-move-box {
-            margin-left: 2em;
-            margin-right: 5em;
+        div.col-right {
             margin-top: 2em;
-            margin-bottom: 2em;
+            padding-left: 4em;
         }
-        div.score-box {
-            margin-top: 2em;
-            margin-left: 2em;
+
+        .last-move dd {
+            min-height: 1em;
         }
+
         .score-box td {
             text-align: right;
         }
 
         div.game-over {
-            margin-top: 2em;
-            margin-left: 2em;
-            display: none;
+            margin-top: 8em;
         }
 
-        div.restart-button {
-            margin-top: 2em;
-            margin-left: 2em;
+        .game-over dl {
+            visibility: hidden;
         }
+        .game-over dd {
+            min-height: 2em;
+        }
+
         body {
-            background-color: dodgerblue;
+            background-color: lightgray;
         }
     </style>
 </head>
 
 <body>
-    <div class="board-area">
-        <table id="board" class="checkers-board">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>a</th>
-                    <th>b</th>
-                    <th>c</th>
-                    <th>d</th>
-                    <th>e</th>
-                    <th>f</th>
-                    <th>g</th>
-                    <th>h</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <th>0</th>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                </tr>
-                <tr>
-                    <th>1</th>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                </tr>
-                <tr>
-                    <th>2</th>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                </tr>
-                <tr>
-                    <th>3</th>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                </tr>
-                <tr>
-                    <th>4</th>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                </tr>
-                <tr>
-                    <th>5</th>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                </tr>
-                <tr>
-                    <th>6</th>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                </tr>
-                <tr>
-                    <th>7</th>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                    <td class="dark"></td>
-                    <td class="light"></td>
-                </tr>
-            </tbody>
-        </table>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+        crossorigin="anonymous"></script>
+
+    <nav class="navbar navbar-expand-sm navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Checkers</a>
+            <ul class="nav navbar-nav d-flex">
+                <li class="nav-item">
+                    <a class="nav-link" href="rules.html">Rules</a>
+                </li>
+                <li class="nav-item">
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                        data-bs-target="#settingsModal">
+                        Settings
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Settings -->
+    <div class="modal fade" id="settingsModal" tabindex="-1" aria-labelledby="settingsModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="settingsModalLabel">Game Settings</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col">
+                                <label for="radio-btn-player" class="form-label">Computer plays:</label>
+                                <div class="form-check" id="radio-btn-player">
+                                    <input class="form-check-input" type="radio" name="playerSelection"
+                                        id="playerSelectionWhite">
+                                    <label class="form-check-label" for="playerSelectionWhite">
+                                        White
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="playerSelection"
+                                        id="playerSelectionBlack">
+                                    <label class="form-check-label" for="playerSelectionBlack">
+                                        Black
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <label for="radio-btn-level" class="form-label">Difficulty Level:</label>
+                                <div class="form-check" id="radio-btn-level">
+                                    <input class="form-check-input" type="radio" name="levelSelector"
+                                        id="levelSelector1">
+                                    <label class="form-check-label" for="levelSelector1">
+                                        Easy
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="levelSelector"
+                                        id="levelSelector2">
+                                    <label class="form-check-label" for="levelSelector2">
+                                        Medium
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="levelSelector"
+                                        id="levelSelector3">
+                                    <label class="form-check-label" for="levelSelector2">
+                                        Hard
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" id="settings-btn-ok" class="btn btn-primary">OK</button>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="last-move-box">
-        <p>Last computer move:</p>
-        <p id="last-move"></p>
+
+    <!-- Loading -->
+    <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="loadingModalLabel">Please wait</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="score-box">
-        <p>Captured pieces</p>
-        <table>
-            <thead>
-                <tr>
-                    <th>Player</th>
-                    <th>Computer</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td id="player-capture-count"></td>
-                    <td id="computer-capture-count"></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="game-over">
-        <p>Game over</p>
-        <p id="winner"></p>
-    </div>
-    <div class="restart-button">
-        <button id="restart">Restart</button>
-    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-lg">
+                <div class=" board-area">
+                    <table id="board" class="checkers-board">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>a</th>
+                                <th>b</th>
+                                <th>c</th>
+                                <th>d</th>
+                                <th>e</th>
+                                <th>f</th>
+                                <th>g</th>
+                                <th>h</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <th>0</th>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                            </tr>
+                            <tr>
+                                <th>1</th>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                            </tr>
+                            <tr>
+                                <th>2</th>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                            </tr>
+                            <tr>
+                                <th>3</th>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                            </tr>
+                            <tr>
+                                <th>4</th>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                            </tr>
+                            <tr>
+                                <th>5</th>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                            </tr>
+                            <tr>
+                                <th>6</th>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                            </tr>
+                            <tr>
+                                <th>7</th>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                                <td class="dark"></td>
+                                <td class="light"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div> <!-- col -->
+            <div class="col-sm col-right">
+                <dl class="last-move">
+                    <dt>Last computer move:</dt>
+                    <dd id="last-move"></dd>
+                </dl>
+                <div class="col-sm-2 score-box">
+                    <table class="table table-info caption-top">
+                        <caption>Captured pieces</caption>
+                        <thead>
+                            <tr>
+                                <th>Player</th>
+                                <th>Computer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td id="player-capture-count"></td>
+                                <td id="computer-capture-count"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="game-over">
+                    <dl>
+                        <dt>Game over</dt>
+                        <dd id="winner"></dd>
+                    </dl>
+                </div>
+                <button class="btn btn-danger" id="restart">Restart</button>
+            </div> <!-- col -->
+        </div> <!-- row -->
+
+    </div> <!-- top level container -->
+
+
     <script src="checkers.js"></script>
 </body>
 
