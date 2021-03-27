@@ -51,6 +51,7 @@ pane = {
 js_vars = """
 const optStartingPlayer = 1;
 const optYOrigin = 0; // down
+const optLang = "pt";
 """
 
 js = {

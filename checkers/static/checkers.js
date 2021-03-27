@@ -12,6 +12,17 @@ if (sValue != null) {
 }
 var computerLevel = 2;
 
+function winner_message(winner) {
+    if (optLang == "pt") {
+        let playerStr = (computerPlayer == winner) ? "Computador" : "Jogador";
+        let colorStr = (winner == 1) ? "brancas" : "pretas";
+        return `Vence o ${playerStr} (peças ${colorStr})`;
+    }
+
+    let playerStr = (computerPlayer == winner) ? "Computer" : "Player";
+    let colorStr = (winner == 1) ? "white" : "black";
+    return `${playerStr} (${colorStr}) wins`;
+}
 
 function board_update_content(response) {
     // Update the board given the response from the webserver
@@ -102,11 +113,9 @@ function board_update_content(response) {
     } else {
         game_over_box.style.visibility = "visible";
         if (response['pieces'][0] == 0) {
-            let playerDesc = (computerPlayer == 1) ? "Player" : "Computer";
-            win.innerHTML = playerDesc + " (black) wins";
+            win.innerHTML = winner_message(2);
         } else {
-            let playerDesc = (computerPlayer == 1) ? "Computer" : "Player";
-            win.innerHTML = playerDesc + " (white) wins";
+            win.innerHTML = winner_message(1);
         }
     }
 }
