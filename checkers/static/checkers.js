@@ -4,13 +4,25 @@ var selectedCell = null;
 var currentPlayOptions = [];
 var gameRunning = false;
 
-var computerPlayer = 1;
+var computerPlayer = (optStartingPlayer == 1) ? 2 : 1;
+
 let sValue = sessionStorage.getItem("computerPlayer");
 if (sValue != null) {
     computerPlayer = parseInt(sValue);
 }
 var computerLevel = 2;
 
+function winner_message(winner) {
+    if (optLang == "pt") {
+        let playerStr = (computerPlayer == winner) ? "Computador" : "Jogador";
+        let colorStr = (winner == 1) ? "brancas" : "pretas";
+        return `Vence o ${playerStr} (peças ${colorStr})`;
+    }
+
+    let playerStr = (computerPlayer == winner) ? "Computer" : "Player";
+    let colorStr = (winner == 1) ? "white" : "black";
+    return `${playerStr} (${colorStr}) wins`;
+}
 
 function board_update_content(response) {
     // Update the board given the response from the webserver
@@ -41,9 +53,9 @@ function board_update_content(response) {
         for (j = 0; j < 8; j++) {
             let piece = board[i][j];
 
-            var row = i;
+            let row = (optYOrigin == 1) ? i : 7 - i;
             var col = j;
-            if (computerPlayer == 2) {
+            if (computerPlayer == optStartingPlayer) {
                 row = 7 - row;
                 col = 7 - col;
             }
@@ -101,11 +113,9 @@ function board_update_content(response) {
     } else {
         game_over_box.style.visibility = "visible";
         if (response['pieces'][0] == 0) {
-            let playerDesc = (computerPlayer == 1) ? "Player" : "Computer";
-            win.innerHTML = playerDesc + " (black) wins";
+            win.innerHTML = winner_message(2);
         } else {
-            let playerDesc = (computerPlayer == 1) ? "Computer" : "Player";
-            win.innerHTML = playerDesc + " (white) wins";
+            win.innerHTML = winner_message(1);
         }
     }
 }
@@ -145,7 +155,10 @@ function showPlayOptions() {
         let col = end[1];
 
         // coordinates to table cell
-        if (computerPlayer == 2) {
+        if (optYOrigin == 0) {
+            row = 7 - row;
+        }
+        if (computerPlayer == optStartingPlayer) {
             row = 7 - row;
             col = 7 - col;
         }
@@ -182,7 +195,10 @@ function clearPlayOptions(row, col) {
         let col = end[1];
 
         // coordinates to table cell
-        if (computerPlayer == 2) {
+        if (optYOrigin == 0) {
+            row = 7 - row;
+        }
+        if (computerPlayer == optStartingPlayer) {
             row = 7 - row;
             col = 7 - col;
         }
@@ -280,7 +296,10 @@ function onCellClick(element, event) {
     let col = parseInt(element.getAttribute("col"));
 
     // table cell to coordinates
-    if (computerPlayer == 2) {
+    if (optYOrigin == 0) {
+        row = 7 - row;
+    }
+    if (computerPlayer == optStartingPlayer) {
         row = 7 - row;
         col = 7 - col;
     }
@@ -338,7 +357,7 @@ function game_restart() {
             return board_update();
         });
 
-    if (computerPlayer == 2) {
+    if (computerPlayer == optStartingPlayer) {
         p.then(function () { advanceGame(); })
     }
 };
@@ -373,8 +392,8 @@ function updateCoordinates(nplayer) {
     let tbody = xboard.querySelector("tbody");
     for (var i = 0; i < 8; i++) {
         let tr = tbody.rows[i];
-        let row = i;
-        if (nplayer == 2) {
+        let row = (optYOrigin == 1) ? i : 7 - i;
+        if (nplayer == optStartingPlayer) {
             row = 7 - row;
         }
         let element = tr.cells[0];

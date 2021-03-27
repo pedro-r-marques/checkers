@@ -6,7 +6,11 @@ RUN pip install -r requirements.txt
 COPY setup.py MANIFEST.in ./
 COPY checkers/ checkers/
 RUN python -m setup install
-COPY checkers/static/ /var/www/static/
+RUN python -m checkers.static.generate
+COPY checkers/static/en /var/www/static/
+COPY checkers/static/pt /var/www/lang/pt/
+COPY checkers/static/checkers.js /var/www/static/
+COPY checkers/static/checkers.js /var/www/lang/pt/
 COPY nginx.conf /usr/local/etc/nginx.conf
 COPY uwsgi.ini /usr/local/etc/uwsgi.ini
 COPY entrypoint.sh /usr/local/bin

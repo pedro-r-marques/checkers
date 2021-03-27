@@ -1,2 +1,1 @@
-include checkers/static/*
 recursive-include checkers/data *
