@@ -58,4 +58,5 @@ js = {
     'vars': js_vars,
 }
 
-pt_vars = dict(meta=meta, nav=nav, settings=settings, main=main, pane=pane, js=js)
+pt_vars = dict(meta=meta, nav=nav, settings=settings,
+               main=main, pane=pane, js=js)
