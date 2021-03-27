@@ -4,7 +4,8 @@ var selectedCell = null;
 var currentPlayOptions = [];
 var gameRunning = false;
 
-var computerPlayer = 1;
+var computerPlayer = (optStartingPlayer == 1) ? 2 : 1;
+
 let sValue = sessionStorage.getItem("computerPlayer");
 if (sValue != null) {
     computerPlayer = parseInt(sValue);
@@ -41,9 +42,9 @@ function board_update_content(response) {
         for (j = 0; j < 8; j++) {
             let piece = board[i][j];
 
-            var row = i;
+            let row = (optYOrigin == 1) ? i : 7 - i;
             var col = j;
-            if (computerPlayer == 2) {
+            if (computerPlayer == optStartingPlayer) {
                 row = 7 - row;
                 col = 7 - col;
             }
@@ -145,7 +146,10 @@ function showPlayOptions() {
         let col = end[1];
 
         // coordinates to table cell
-        if (computerPlayer == 2) {
+        if (optYOrigin == 0) {
+            row = 7 - row;
+        }
+        if (computerPlayer == optStartingPlayer) {
             row = 7 - row;
             col = 7 - col;
         }
@@ -182,7 +186,10 @@ function clearPlayOptions(row, col) {
         let col = end[1];
 
         // coordinates to table cell
-        if (computerPlayer == 2) {
+        if (optYOrigin == 0) {
+            row = 7 - row;
+        }
+        if (computerPlayer == optStartingPlayer) {
             row = 7 - row;
             col = 7 - col;
         }
@@ -280,7 +287,10 @@ function onCellClick(element, event) {
     let col = parseInt(element.getAttribute("col"));
 
     // table cell to coordinates
-    if (computerPlayer == 2) {
+    if (optYOrigin == 0) {
+        row = 7 - row;
+    }
+    if (computerPlayer == optStartingPlayer) {
         row = 7 - row;
         col = 7 - col;
     }
@@ -338,7 +348,7 @@ function game_restart() {
             return board_update();
         });
 
-    if (computerPlayer == 2) {
+    if (computerPlayer == optStartingPlayer) {
         p.then(function () { advanceGame(); })
     }
 };
@@ -373,8 +383,8 @@ function updateCoordinates(nplayer) {
     let tbody = xboard.querySelector("tbody");
     for (var i = 0; i < 8; i++) {
         let tr = tbody.rows[i];
-        let row = i;
-        if (nplayer == 2) {
+        let row = (optYOrigin == 1) ? i : 7 - i;
+        if (nplayer == optStartingPlayer) {
             row = 7 - row;
         }
         let element = tr.cells[0];
