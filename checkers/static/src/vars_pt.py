@@ -6,7 +6,7 @@ meta = {
 }
 
 nav = {
-    'brand': "Damas",
+    'brand': "Jogo de Damas",
     'rules': "Regras",
     'settings': "Opções",
 }

@@ -18,7 +18,8 @@ from .gcloud import StorageWriter, gcloud_meta_project_id
 
 source_dir = os.path.dirname(os.path.abspath(__file__))
 app = flask.Flask("checkers", static_url_path='',
-                  static_folder=os.path.join(source_dir, 'static'))
+                  static_folder=os.path.join(source_dir, 'static',
+                                             os.getenv('VIRTUAL_HOST', 'en')))
 app.secret_key = os.getenv("SECRET_KEY", "dev")
 
 
