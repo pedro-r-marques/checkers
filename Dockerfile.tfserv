@@ -1,0 +1,4 @@
+FROM tensorflow/serving
+COPY checkers/data/score_model/ /models/score_model/
+ENV MODEL_NAME=score_model
+EXPOSE 8501

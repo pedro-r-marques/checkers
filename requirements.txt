@@ -4,3 +4,4 @@ cython
 cachetools
 tensorflow
 google-cloud-storage
+urllib3

@@ -1,11 +1,10 @@
 import os
 import random
+import json
 
 import cachetools
 import numpy as np
-
-import tensorflow as tf
-from tensorflow import keras
+import urllib3
 
 from .py_checkers import PyCheckersBoard as CheckersBoard
 from .minmax_tree import MinMaxTreeExecutor, ScorerExecutor
@@ -15,11 +14,12 @@ class TFCallExecutor(ScorerExecutor):
     BATCH_SIZE = 32
     BATCH_SLOTS = [8, 16, 24]
 
-    def __init__(self, model):
+    def __init__(self, uri):
         super().__init__()
-        self.model = model
-        self.x_board = np.zeros((self.BATCH_SIZE, 8, 4, 4), dtype=np.bool)
-        self.x_player = np.zeros((self.BATCH_SIZE, 2), dtype=np.bool)
+        self.http = urllib3.PoolManager()
+        self.uri = uri
+        self.x_board = np.zeros((self.BATCH_SIZE, 8, 4, 4), dtype=bool)
+        self.x_player = np.zeros((self.BATCH_SIZE, 2), dtype=bool)
         self.x_node_list = []
         self.x_move_list = []
         self.x_key_list = []
@@ -36,9 +36,21 @@ class TFCallExecutor(ScorerExecutor):
         x_player.fill(0)
         x_player[player - 1] = True
 
-    @tf.function
     def predict(self, args):
-        return self.model(args)
+        data = {
+            'inputs': {
+                'input_31': args[0].astype(float).tolist(),
+                'input_32': args[1].astype(float).tolist(),
+            },
+        }
+        r = self.http.request('POST', self.uri + ':predict',
+                              body=json.dumps(data).encode('utf-8'))
+        if r.status != 200:
+            raise Exception(r.data)
+
+        resp = json.loads(r.data.decode('utf-8'))
+        arr = np.array(resp['outputs'])
+        return arr
 
     def enqueue(self, node, board, move, player):
         key = (hash(board), player)
@@ -64,7 +76,6 @@ class TFCallExecutor(ScorerExecutor):
 
         data = [arr[:batch_size] for arr in [self.x_board, self.x_player]]
         y_pred = self.predict(data)
-        y_pred = y_pred.numpy()
 
         for i, node in enumerate(self.x_node_list):
             score = y_pred[i, 1] - y_pred[i, 2]
@@ -79,23 +90,15 @@ class TFCallExecutor(ScorerExecutor):
         self.x_move_list = []
         self.x_key_list = []
 
-    def initialize(self):
-        """ Run an empty batch to trigger tensorflow initialization
-        """
-        self.predict([self.x_board, self.x_player])
-
 
 class TFScorerPlayer(MinMaxTreeExecutor):
-    DATADIR = os.path.join(
-        os.path.dirname(os.path.abspath(__file__)), 'data', 'score_model', '1')
+    PORT = 8501
 
     def __init__(self, **kwargs):
-        self.model = keras.models.load_model(self.DATADIR)
-        self.exec = TFCallExecutor(self.model)
+        hostname = os.getenv('TF_SERVING_HOST') or 'localhost'
+        self.exec = TFCallExecutor(
+            f'http://{hostname}:{self.PORT}/v1/models/score_model')
         super().__init__(self.exec, max_depth=kwargs.get('max_depth', 4))
-
-    def initialize(self):
-        self.exec.initialize()
 
     def move_select(self, board, player, turn=None):
         moves = self.move_minmax(board, player)
