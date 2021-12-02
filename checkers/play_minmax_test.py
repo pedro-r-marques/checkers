@@ -1,9 +1,9 @@
 import random
 import unittest
 
-from .py_checkers import PyCheckersBoard as CheckersBoard
+from libcheckers.py_checkers import PyCheckersBoard as CheckersBoard
+from libcheckers.py_scorer import PyScorer
 from .play_minmax import MinMaxPlayer
-from .py_scorer import PyScorer
 
 
 def move_info_best(debug_data):

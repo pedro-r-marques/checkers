@@ -8,7 +8,7 @@ import uuid
 import cachetools
 import flask
 
-from .py_checkers import PyCheckersBoard as CheckersBoard
+from libcheckers.py_checkers import PyCheckersBoard as CheckersBoard
 from .play_minmax import MinMaxPlayer
 from .play_probability import StatsPlayer
 from .play_scorer_tfserv import TFScorerPlayer

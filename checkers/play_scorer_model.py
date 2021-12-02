@@ -7,7 +7,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 
-from .py_checkers import PyCheckersBoard as CheckersBoard
+from libcheckers.py_checkers import PyCheckersBoard as CheckersBoard
 from .minmax_tree import MinMaxTreeExecutor, ScorerExecutor
 
 

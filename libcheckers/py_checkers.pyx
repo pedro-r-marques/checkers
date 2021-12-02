@@ -2,7 +2,7 @@
 
 from cpython.bytes cimport PyBytes_FromStringAndSize
 from libcpp.vector cimport vector
-from checkers.py_checkers cimport CheckersBoard
+from .py_checkers import PyCheckersBoard
 
 cdef class PyCheckersBoard:
     WHITE = 1

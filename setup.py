@@ -9,15 +9,15 @@ setuptools.setup(name='checkers',
                  packages=setuptools.find_packages(),
                  ext_modules=cythonize([
                      setuptools.Extension(
-                         "checkers.py_checkers", sources=[
-                             "checkers/py_checkers.pyx",
+                         "libcheckers.py_checkers", sources=[
+                             "libcheckers/py_checkers.pyx",
                          ],
                          extra_compile_args=['-std=c++17'],
                          language='c++',
                      ),
                      setuptools.Extension(
-                         "checkers.py_scorer", sources=[
-                             "checkers/py_scorer.pyx",
+                         "libcheckers.py_scorer", sources=[
+                             "libcheckers/py_scorer.pyx",
                          ],
                          extra_compile_args=['-std=c++17'],
                          language='c++',

@@ -4,7 +4,7 @@ import os
 import re
 import warnings
 
-from .py_checkers import PyCheckersBoard as CheckersBoard
+from libcheckers.py_checkers import PyCheckersBoard as CheckersBoard
 
 LogEntry = collections.namedtuple(
     'LogEntry', ['board', 'turn', 'player', 'move'])
