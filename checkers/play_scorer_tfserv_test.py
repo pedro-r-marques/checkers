@@ -18,9 +18,12 @@ def board_from_pieces(pieces):
 
 def tfserving_available():
     http = urllib3.PoolManager()
-    r = http.request(
-        'GET', 'http://localhost:8501/v1/models/score_model/metadata')
-    return r.status == 200
+    try:
+        r = http.request(
+            'GET', 'http://localhost:8501/v1/models/score_model/metadata')
+        return r.status == 200
+    except Exception:
+        return False
 
 
 @unittest.skipUnless(
