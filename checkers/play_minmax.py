@@ -5,8 +5,8 @@
 import functools
 import random
 
-from .py_checkers import PyCheckersBoard as CheckersBoard
-from .py_scorer import PyScorer
+from libcheckers.py_checkers import PyCheckersBoard as CheckersBoard
+from libcheckers.py_scorer import PyScorer
 from .play_random import move_select as random_select
 
 SCORE_MIN = -1000

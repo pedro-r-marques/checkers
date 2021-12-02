@@ -3,7 +3,7 @@ import heapq
 
 import cachetools
 
-from .py_checkers import PyCheckersBoard as CheckersBoard
+from libcheckers.py_checkers import PyCheckersBoard as CheckersBoard
 
 
 class MinMaxNode(object):

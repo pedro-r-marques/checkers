@@ -1,7 +1,7 @@
 # distutils: language = c++
 
-from checkers.py_scorer cimport Scorer
-from checkers.py_checkers cimport PyCheckersBoard, CheckersBoard
+from .py_scorer cimport Scorer
+from .py_checkers cimport PyCheckersBoard, CheckersBoard
 
 cdef class PyScorer:
     cdef Scorer c_impl

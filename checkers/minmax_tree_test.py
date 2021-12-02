@@ -1,9 +1,10 @@
 import random
 import unittest
 
+from libcheckers.py_checkers import PyCheckersBoard as CheckersBoard
+from libcheckers.py_scorer import PyScorer
+
 from .minmax_tree import MinMaxTreeExecutor, ScorerExecutor
-from .py_checkers import PyCheckersBoard as CheckersBoard
-from .py_scorer import PyScorer
 from .play_minmax import MinMaxPlayer
 
 

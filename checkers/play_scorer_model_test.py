@@ -1,7 +1,7 @@
 import os
 import unittest
 
-from .py_checkers import PyCheckersBoard as CheckersBoard
+from libcheckers.py_checkers import PyCheckersBoard as CheckersBoard
 from .play_scorer_model import TFScorerPlayer
 
 

@@ -3,8 +3,8 @@ import tempfile
 import shutil
 import os
 
+from libcheckers.py_checkers import PyCheckersBoard as CheckersBoard
 from .logger import GameLogger, SummaryLogger
-from .py_checkers import PyCheckersBoard as CheckersBoard
 from .play_random import move_select
 
 

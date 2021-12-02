@@ -6,7 +6,7 @@ import tensorflow as tf
 import numpy as np
 
 from checkers.logger import GameLogger
-from checkers.py_checkers import PyCheckersBoard
+from libcheckers.py_checkers import PyCheckersBoard
 
 
 class DataGenerator(tf.keras.utils.Sequence):

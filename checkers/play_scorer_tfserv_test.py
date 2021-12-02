@@ -2,7 +2,7 @@ import unittest
 
 import urllib3
 
-from .py_checkers import PyCheckersBoard as CheckersBoard
+from libcheckers.py_checkers import PyCheckersBoard as CheckersBoard
 from .play_scorer_tfserv import TFScorerPlayer
 
 

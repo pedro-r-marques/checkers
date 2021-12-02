@@ -1,6 +1,6 @@
 
 BUILD_DIR ?= ./build
-SOURCE_DIR ?= ./checkers
+SOURCE_DIR ?= ./libcheckers
 
 CXXFLAGS=-std=c++17 -g
 LDFLAGS=-g

@@ -1,6 +1,6 @@
 # distutils: language = c++
 
-from checkers.py_checkers cimport CheckersBoard
+from .py_checkers cimport CheckersBoard
 
 cdef extern from "scorer.cc":
     pass
