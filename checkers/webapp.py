@@ -11,7 +11,7 @@ import flask
 from .py_checkers import PyCheckersBoard as CheckersBoard
 from .play_minmax import MinMaxPlayer
 from .play_probability import StatsPlayer
-from .play_scorer_model import TFScorerPlayer
+from .play_scorer_tfserv import TFScorerPlayer
 from .logger import GameLogger
 from .gcloud import StorageWriter, gcloud_meta_project_id
 
@@ -28,6 +28,7 @@ global_sessions = cachetools.TTLCache(maxsize=1024, ttl=60*30)
 algorithms = {
     'easy': MinMaxPlayer(max_depth=3),
     'medium': MinMaxPlayer(max_depth=4, select_best=True),
+    'hard': TFScorerPlayer(),
 }
 algorithms['default'] = algorithms['medium']
 
@@ -185,14 +186,9 @@ def board_init():
     return flask.make_response("OK", 200)
 
 
-if StatsPlayer.is_data_available():
-    print('Loading stats player...')
-    algorithms['medium'] = StatsPlayer(select_best=True)
-
-if os.path.exists(TFScorerPlayer.DATADIR):
-    print('Loading TFScorer...')
-    algorithms['hard'] = TFScorerPlayer()
-
-
 if __name__ == "__main__":
+    if StatsPlayer.is_data_available():
+        print('Loading stats player...')
+        algorithms['medium'] = StatsPlayer(select_best=True)
+
     app.run(threaded=False)
